@@ -7,8 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="DTOs\Auth\" />
     <Folder Include="DTOs\Candidates\" />
     <Folder Include="DTOs\Jobs\" />
     <Folder Include="DTOs\Applications\" />
@@ -21,8 +19,6 @@
     <Folder Include="Helpers\" />
     <Folder Include="Configuration\" />
     <Folder Include="Factories\" />
-    <Folder Include="Services\Interfaces\" />
-    <Folder Include="Services\Implementations\" />
     <Folder Include="Strategies\" />
   </ItemGroup>
 
