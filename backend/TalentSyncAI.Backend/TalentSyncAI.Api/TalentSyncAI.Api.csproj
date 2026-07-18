@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Candidates\" />
     <Folder Include="DTOs\Jobs\" />
     <Folder Include="DTOs\Applications\" />
     <Folder Include="DTOs\Interviews\" />

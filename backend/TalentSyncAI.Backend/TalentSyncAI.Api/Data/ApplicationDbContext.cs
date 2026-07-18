@@ -12,6 +12,7 @@ namespace TalentSyncAI.Api.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<CandidateProfile> CandidateProfiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +42,41 @@ namespace TalentSyncAI.Api.Data
 
                 entity.Property(user => user.CreatedAt)
                     .HasDefaultValueSql("GETUTCDATE()");
+            });
+
+            modelBuilder.Entity<CandidateProfile>(entity =>
+            {
+                entity.HasKey(profile => profile.Id);
+
+                entity.HasIndex(profile => profile.UserId)
+                    .IsUnique();
+
+                entity.Property(profile => profile.Phone)
+                    .HasMaxLength(20);
+
+                entity.Property(profile => profile.Location)
+                    .HasMaxLength(150);
+
+                entity.Property(profile => profile.Skills)
+                    .HasMaxLength(2000);
+
+                entity.Property(profile => profile.Education)
+                    .HasMaxLength(2000);
+
+                entity.Property(profile => profile.ExperienceSummary)
+                    .HasMaxLength(4000);
+
+                entity.Property(profile => profile.ResumeUrl)
+                    .HasMaxLength(500);
+
+                entity.Property(profile => profile.UpdatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(profile => profile.User)
+                    .WithOne(user => user.CandidateProfile)
+                    .HasForeignKey<CandidateProfile>(
+                        profile => profile.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

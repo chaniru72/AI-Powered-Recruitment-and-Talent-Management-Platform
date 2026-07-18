@@ -17,5 +17,7 @@ namespace TalentSyncAI.Api.Models.Entities
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public CandidateProfile? CandidateProfile { get; set; }
     }
 }
