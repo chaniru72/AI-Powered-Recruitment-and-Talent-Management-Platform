@@ -21,5 +21,7 @@ namespace TalentSyncAI.Api.Models.Entities
         public CandidateProfile? CandidateProfile { get; set; }
 
         public RecruiterProfile? RecruiterProfile { get; set; }
+
+        public Organization? ManagedOrganization { get; set; }
     }
 }

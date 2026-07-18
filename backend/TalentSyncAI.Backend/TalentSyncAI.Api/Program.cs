@@ -15,8 +15,7 @@ using TalentSyncAI.Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add controller support.
-// Enums such as Candidate and Recruiter are accepted as text in JSON.
+// Configure API controllers and readable enum values.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -24,19 +23,21 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter());
     });
 
-// Get the SQL Server connection string.
+// Read the SQL Server connection string.
 string connectionString =
-    builder.Configuration.GetConnectionString("DefaultConnection")
+    builder.Configuration.GetConnectionString(
+        "DefaultConnection")
     ?? throw new InvalidOperationException(
         "DefaultConnection is missing from appsettings.json.");
 
-// Register Entity Framework Core with SQL Server.
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+// Register Entity Framework Core.
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options =>
+        options.UseSqlServer(connectionString));
 
-// ---------------------------------------------------
+// -------------------------------------------------
 // Repository registrations
-// ---------------------------------------------------
+// -------------------------------------------------
 
 builder.Services.AddScoped<
     IUserRepository,
@@ -50,17 +51,21 @@ builder.Services.AddScoped<
     IRecruiterProfileRepository,
     RecruiterProfileRepository>();
 
-// ---------------------------------------------------
+builder.Services.AddScoped<
+    IOrganizationRepository,
+    OrganizationRepository>();
+
+// -------------------------------------------------
 // Password hashing
-// ---------------------------------------------------
+// -------------------------------------------------
 
 builder.Services.AddScoped<
     IPasswordHasher<User>,
     PasswordHasher<User>>();
 
-// ---------------------------------------------------
+// -------------------------------------------------
 // Application service registrations
-// ---------------------------------------------------
+// -------------------------------------------------
 
 builder.Services.AddScoped<
     IAuthService,
@@ -75,6 +80,10 @@ builder.Services.AddScoped<
     RecruiterProfileService>();
 
 builder.Services.AddScoped<
+    IOrganizationService,
+    OrganizationService>();
+
+builder.Services.AddScoped<
     IFileStorageService,
     LocalFileStorageService>();
 
@@ -82,9 +91,9 @@ builder.Services.AddScoped<
     ITokenService,
     TokenService>();
 
-// ---------------------------------------------------
+// -------------------------------------------------
 // JWT configuration
-// ---------------------------------------------------
+// -------------------------------------------------
 
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection(
@@ -103,9 +112,9 @@ if (string.IsNullOrWhiteSpace(jwtSettings.Key))
         "JWT signing key is missing. Configure it using Manage User Secrets.");
 }
 
-// ---------------------------------------------------
+// -------------------------------------------------
 // Authentication and authorization
-// ---------------------------------------------------
+// -------------------------------------------------
 
 builder.Services
     .AddAuthentication(options =>
@@ -138,34 +147,31 @@ builder.Services
 
                 ClockSkew = TimeSpan.Zero,
 
-                NameClaimType = ClaimTypes.Name,
+                NameClaimType =
+                    ClaimTypes.Name,
 
-                RoleClaimType = ClaimTypes.Role
+                RoleClaimType =
+                    ClaimTypes.Role
             };
     });
 
 builder.Services.AddAuthorization();
 
-// Build the application.
 var app = builder.Build();
 
-// ---------------------------------------------------
+// -------------------------------------------------
 // Middleware
-// ---------------------------------------------------
+// -------------------------------------------------
 
 app.UseHttpsRedirection();
 
-// Authentication must come before authorization.
 app.UseAuthentication();
+
 app.UseAuthorization();
 
-// Activate controller routes.
 app.MapControllers();
 
-// ---------------------------------------------------
-// General health endpoint
-// ---------------------------------------------------
-
+// General health endpoint.
 app.MapGet("/health", () =>
 {
     return Results.Ok(new
@@ -176,21 +182,20 @@ app.MapGet("/health", () =>
     });
 });
 
-// ---------------------------------------------------
-// Database health endpoint
-// ---------------------------------------------------
-
+// SQL Server health endpoint.
 app.MapGet(
     "/health/database",
     async (ApplicationDbContext dbContext) =>
     {
         bool canConnect =
-            await dbContext.Database.CanConnectAsync();
+            await dbContext.Database
+                .CanConnectAsync();
 
         if (!canConnect)
         {
             return Results.StatusCode(
-                StatusCodes.Status503ServiceUnavailable);
+                StatusCodes
+                    .Status503ServiceUnavailable);
         }
 
         return Results.Ok(new
@@ -202,5 +207,4 @@ app.MapGet(
         });
     });
 
-// Start the backend server.
 app.Run();
