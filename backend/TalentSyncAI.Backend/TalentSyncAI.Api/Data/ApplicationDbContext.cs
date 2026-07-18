@@ -12,13 +12,21 @@ namespace TalentSyncAI.Api.Data
         }
 
         public DbSet<User> Users { get; set; }
+
         public DbSet<CandidateProfile> CandidateProfiles { get; set; }
 
         public DbSet<RecruiterProfile> RecruiterProfiles { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public DbSet<Organization> Organizations { get; set; }
+
+        protected override void OnModelCreating(
+            ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // ------------------------------------------
+            // User configuration
+            // ------------------------------------------
 
             modelBuilder.Entity<User>(entity =>
             {
@@ -44,39 +52,11 @@ namespace TalentSyncAI.Api.Data
 
                 entity.Property(user => user.CreatedAt)
                     .HasDefaultValueSql("GETUTCDATE()");
-
-                modelBuilder.Entity<RecruiterProfile>(entity =>
-                {
-                    entity.HasKey(profile => profile.Id);
-
-                    entity.HasIndex(profile => profile.UserId)
-                        .IsUnique();
-
-                    entity.Property(profile => profile.Phone)
-                        .HasMaxLength(20);
-
-                    entity.Property(profile => profile.JobTitle)
-                        .HasMaxLength(150);
-
-                    entity.Property(profile => profile.Location)
-                        .HasMaxLength(150);
-
-                    entity.Property(profile => profile.ProfessionalSummary)
-                        .HasMaxLength(3000);
-
-                    entity.Property(profile => profile.LinkedInUrl)
-                        .HasMaxLength(500);
-
-                    entity.Property(profile => profile.UpdatedAt)
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    entity.HasOne(profile => profile.User)
-                        .WithOne(user => user.RecruiterProfile)
-                        .HasForeignKey<RecruiterProfile>(
-                            profile => profile.UserId)
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
             });
+
+            // ------------------------------------------
+            // Candidate profile configuration
+            // ------------------------------------------
 
             modelBuilder.Entity<CandidateProfile>(entity =>
             {
@@ -97,7 +77,8 @@ namespace TalentSyncAI.Api.Data
                 entity.Property(profile => profile.Education)
                     .HasMaxLength(2000);
 
-                entity.Property(profile => profile.ExperienceSummary)
+                entity.Property(
+                        profile => profile.ExperienceSummary)
                     .HasMaxLength(4000);
 
                 entity.Property(profile => profile.ResumeUrl)
@@ -110,6 +91,97 @@ namespace TalentSyncAI.Api.Data
                     .WithOne(user => user.CandidateProfile)
                     .HasForeignKey<CandidateProfile>(
                         profile => profile.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ------------------------------------------
+            // Recruiter profile configuration
+            // ------------------------------------------
+
+            modelBuilder.Entity<RecruiterProfile>(entity =>
+            {
+                entity.HasKey(profile => profile.Id);
+
+                entity.HasIndex(profile => profile.UserId)
+                    .IsUnique();
+
+                entity.Property(profile => profile.Phone)
+                    .HasMaxLength(20);
+
+                entity.Property(profile => profile.JobTitle)
+                    .HasMaxLength(150);
+
+                entity.Property(profile => profile.Location)
+                    .HasMaxLength(150);
+
+                entity.Property(
+                        profile => profile.ProfessionalSummary)
+                    .HasMaxLength(3000);
+
+                entity.Property(profile => profile.LinkedInUrl)
+                    .HasMaxLength(500);
+
+                entity.Property(profile => profile.UpdatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(profile => profile.User)
+                    .WithOne(user => user.RecruiterProfile)
+                    .HasForeignKey<RecruiterProfile>(
+                        profile => profile.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ------------------------------------------
+            // Organization configuration
+            // ------------------------------------------
+
+            modelBuilder.Entity<Organization>(entity =>
+            {
+                entity.HasKey(
+                    organization => organization.Id);
+
+                entity.HasIndex(
+                        organization =>
+                            organization.RecruiterUserId)
+                    .IsUnique();
+
+                entity.Property(
+                        organization => organization.Name)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(
+                        organization => organization.Industry)
+                    .HasMaxLength(150);
+
+                entity.Property(
+                        organization => organization.Description)
+                    .HasMaxLength(3000);
+
+                entity.Property(
+                        organization => organization.Location)
+                    .HasMaxLength(200);
+
+                entity.Property(
+                        organization => organization.WebsiteUrl)
+                    .HasMaxLength(500);
+
+                entity.Property(
+                        organization => organization.CreatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(
+                        organization => organization.UpdatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(
+                        organization =>
+                            organization.RecruiterUser)
+                    .WithOne(
+                        user => user.ManagedOrganization)
+                    .HasForeignKey<Organization>(
+                        organization =>
+                            organization.RecruiterUserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
