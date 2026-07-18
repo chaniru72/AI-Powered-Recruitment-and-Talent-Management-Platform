@@ -1,18 +1,25 @@
+using Microsoft.EntityFrameworkCore;
+using TalentSyncAI.Api.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Adds support for controller-based API endpoints.
+
 builder.Services.AddControllers();
 
-// Builds the application using the registered services.
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 var app = builder.Build();
 
-// Redirects normal HTTP requests to secure HTTPS.
+
 app.UseHttpsRedirection();
 
-// Finds and activates controllers inside the Controllers folder.
+
 app.MapControllers();
 
-// A temporary endpoint used to verify that the backend is running.
+
 app.MapGet("/health", () =>
 {
     return Results.Ok(new
@@ -23,5 +30,5 @@ app.MapGet("/health", () =>
     });
 });
 
-// Starts the backend web server.
+
 app.Run();
