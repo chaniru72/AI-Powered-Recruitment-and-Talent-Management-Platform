@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using TalentSyncAI.Api.Configuration;
@@ -32,11 +31,17 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<
     IPasswordHasher<User>,
     PasswordHasher<User>>();
+builder.Services.AddScoped<
+    ICandidateProfileRepository,
+    CandidateProfileRepository>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection(
         JwtSettings.SectionName));
+builder.Services.AddScoped<
+    ICandidateProfileService,
+    CandidateProfileService>();
 
 JwtSettings jwtSettings =
     builder.Configuration
