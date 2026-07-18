@@ -1,3 +1,10 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 /* Remove the large duplicate Sign In and Sign Up tabs */
 .auth-tabs {
   display: none;
