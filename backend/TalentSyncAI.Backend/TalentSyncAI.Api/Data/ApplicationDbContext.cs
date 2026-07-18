@@ -14,6 +14,8 @@ namespace TalentSyncAI.Api.Data
         public DbSet<User> Users { get; set; }
         public DbSet<CandidateProfile> CandidateProfiles { get; set; }
 
+        public DbSet<RecruiterProfile> RecruiterProfiles { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -42,6 +44,38 @@ namespace TalentSyncAI.Api.Data
 
                 entity.Property(user => user.CreatedAt)
                     .HasDefaultValueSql("GETUTCDATE()");
+
+                modelBuilder.Entity<RecruiterProfile>(entity =>
+                {
+                    entity.HasKey(profile => profile.Id);
+
+                    entity.HasIndex(profile => profile.UserId)
+                        .IsUnique();
+
+                    entity.Property(profile => profile.Phone)
+                        .HasMaxLength(20);
+
+                    entity.Property(profile => profile.JobTitle)
+                        .HasMaxLength(150);
+
+                    entity.Property(profile => profile.Location)
+                        .HasMaxLength(150);
+
+                    entity.Property(profile => profile.ProfessionalSummary)
+                        .HasMaxLength(3000);
+
+                    entity.Property(profile => profile.LinkedInUrl)
+                        .HasMaxLength(500);
+
+                    entity.Property(profile => profile.UpdatedAt)
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    entity.HasOne(profile => profile.User)
+                        .WithOne(user => user.RecruiterProfile)
+                        .HasForeignKey<RecruiterProfile>(
+                            profile => profile.UserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
             });
 
             modelBuilder.Entity<CandidateProfile>(entity =>

@@ -14,7 +14,6 @@
     <Folder Include="DTOs\Evaluations\" />
     <Folder Include="DTOs\Admin\" />
     <Folder Include="DTOs\AI\" />
-    <Folder Include="DTOs\Recruiters\" />
     <Folder Include="Middleware\" />
     <Folder Include="Factories\" />
     <Folder Include="Strategies\" />

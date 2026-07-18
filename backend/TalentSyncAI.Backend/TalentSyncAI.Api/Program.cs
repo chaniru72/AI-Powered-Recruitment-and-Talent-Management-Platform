@@ -1,8 +1,8 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using TalentSyncAI.Api.Configuration;
@@ -15,7 +15,8 @@ using TalentSyncAI.Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// Add controller support.
+// Enums such as Candidate and Recruiter are accepted as text in JSON.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -23,34 +24,71 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter());
     });
 
+// Get the SQL Server connection string.
 string connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "DefaultConnection is missing from appsettings.json.");
 
+// Register Entity Framework Core with SQL Server.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+// ---------------------------------------------------
+// Repository registrations
+// ---------------------------------------------------
+
 builder.Services.AddScoped<
-    IPasswordHasher<User>,
-    PasswordHasher<User>>();
+    IUserRepository,
+    UserRepository>();
 
 builder.Services.AddScoped<
     ICandidateProfileRepository,
     CandidateProfileRepository>();
 
 builder.Services.AddScoped<
-    IFileStorageService,
-    LocalFileStorageService>();
+    IRecruiterProfileRepository,
+    RecruiterProfileRepository>();
 
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.Configure<JwtSettings>(
-    builder.Configuration.GetSection(
-        JwtSettings.SectionName));
+// ---------------------------------------------------
+// Password hashing
+// ---------------------------------------------------
+
+builder.Services.AddScoped<
+    IPasswordHasher<User>,
+    PasswordHasher<User>>();
+
+// ---------------------------------------------------
+// Application service registrations
+// ---------------------------------------------------
+
+builder.Services.AddScoped<
+    IAuthService,
+    AuthService>();
+
 builder.Services.AddScoped<
     ICandidateProfileService,
     CandidateProfileService>();
+
+builder.Services.AddScoped<
+    IRecruiterProfileService,
+    RecruiterProfileService>();
+
+builder.Services.AddScoped<
+    IFileStorageService,
+    LocalFileStorageService>();
+
+builder.Services.AddScoped<
+    ITokenService,
+    TokenService>();
+
+// ---------------------------------------------------
+// JWT configuration
+// ---------------------------------------------------
+
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection(
+        JwtSettings.SectionName));
 
 JwtSettings jwtSettings =
     builder.Configuration
@@ -65,9 +103,9 @@ if (string.IsNullOrWhiteSpace(jwtSettings.Key))
         "JWT signing key is missing. Configure it using Manage User Secrets.");
 }
 
-builder.Services.AddScoped<
-    ITokenService,
-    TokenService>();
+// ---------------------------------------------------
+// Authentication and authorization
+// ---------------------------------------------------
 
 builder.Services
     .AddAuthentication(options =>
@@ -108,15 +146,25 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-
+// Build the application.
 var app = builder.Build();
 
+// ---------------------------------------------------
+// Middleware
+// ---------------------------------------------------
 
 app.UseHttpsRedirection();
+
+// Authentication must come before authorization.
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Activate controller routes.
 app.MapControllers();
 
+// ---------------------------------------------------
+// General health endpoint
+// ---------------------------------------------------
 
 app.MapGet("/health", () =>
 {
@@ -128,23 +176,31 @@ app.MapGet("/health", () =>
     });
 });
 
-app.MapGet("/health/database", async (ApplicationDbContext dbContext) =>
-{
-    bool canConnect = await dbContext.Database.CanConnectAsync();
+// ---------------------------------------------------
+// Database health endpoint
+// ---------------------------------------------------
 
-    if (!canConnect)
+app.MapGet(
+    "/health/database",
+    async (ApplicationDbContext dbContext) =>
     {
-        return Results.StatusCode(
-            StatusCodes.Status503ServiceUnavailable);
-    }
+        bool canConnect =
+            await dbContext.Database.CanConnectAsync();
 
-    return Results.Ok(new
-    {
-        status = "Healthy",
-        database = "AIRecruitmentDB",
-        connected = true,
-        timestamp = DateTime.UtcNow
+        if (!canConnect)
+        {
+            return Results.StatusCode(
+                StatusCodes.Status503ServiceUnavailable);
+        }
+
+        return Results.Ok(new
+        {
+            status = "Healthy",
+            database = "AIRecruitmentDB",
+            connected = true,
+            timestamp = DateTime.UtcNow
+        });
     });
-});
 
+// Start the backend server.
 app.Run();

@@ -19,5 +19,7 @@ namespace TalentSyncAI.Api.Models.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public CandidateProfile? CandidateProfile { get; set; }
+
+        public RecruiterProfile? RecruiterProfile { get; set; }
     }
 }
