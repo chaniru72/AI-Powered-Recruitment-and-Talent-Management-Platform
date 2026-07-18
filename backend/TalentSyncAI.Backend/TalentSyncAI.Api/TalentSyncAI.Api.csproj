@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>09bf7597-4ee1-4668-be9c-19460cd0dcd9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,12 +18,12 @@
     <Folder Include="DTOs\Recruiters\" />
     <Folder Include="Middleware\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Configuration\" />
     <Folder Include="Factories\" />
     <Folder Include="Strategies\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.29" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.29">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

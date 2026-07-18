@@ -1,12 +1,18 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using System.Text.Json.Serialization;
-using TalentSyncAI.Api.Models.Entities;
-using TalentSyncAI.Api.Services.Interfaces;
-using TalentSyncAI.Api.Services.Implementations;
-using TalentSyncAI.Api.Repositories.Interfaces;
-using TalentSyncAI.Api.Repositories.Implementations;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json.Serialization;
+using TalentSyncAI.Api.Configuration;
 using TalentSyncAI.Api.Data;
+using TalentSyncAI.Api.Models.Entities;
+using TalentSyncAI.Api.Repositories.Implementations;
+using TalentSyncAI.Api.Repositories.Interfaces;
+using TalentSyncAI.Api.Services.Implementations;
+using TalentSyncAI.Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,14 +34,73 @@ builder.Services.AddScoped<
     PasswordHasher<User>>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection(
+        JwtSettings.SectionName));
+
+JwtSettings jwtSettings =
+    builder.Configuration
+        .GetSection(JwtSettings.SectionName)
+        .Get<JwtSettings>()
+    ?? throw new InvalidOperationException(
+        "JWT configuration is missing.");
+
+if (string.IsNullOrWhiteSpace(jwtSettings.Key))
+{
+    throw new InvalidOperationException(
+        "JWT signing key is missing. Configure it using Manage User Secrets.");
+}
+
+builder.Services.AddScoped<
+    ITokenService,
+    TokenService>();
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+
+        options.DefaultChallengeScheme =
+            JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(
+                            jwtSettings.Key)),
+
+                ValidateIssuer = true,
+                ValidIssuer = jwtSettings.Issuer,
+
+                ValidateAudience = true,
+                ValidAudience = jwtSettings.Audience,
+
+                ValidateLifetime = true,
+
+                ClockSkew = TimeSpan.Zero,
+
+                NameClaimType = ClaimTypes.Name,
+
+                RoleClaimType = ClaimTypes.Role
+            };
+    });
+
+builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
 
 
 app.UseHttpsRedirection();
-
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 
