@@ -4,6 +4,10 @@ namespace TalentSyncAI.Api.Services.Interfaces
 {
     public interface IAuthService
     {
-        Task<RegisterResult> RegisterAsync(RegisterRequestDto request);
+        Task<RegisterResult> RegisterAsync(
+            RegisterRequestDto request);
+
+        Task<LoginResult> LoginAsync(
+            LoginRequestDto request);
     }
 }

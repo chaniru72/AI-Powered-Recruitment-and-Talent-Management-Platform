@@ -11,19 +11,21 @@ namespace TalentSyncAI.Api.Services.Implementations
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly ITokenService _tokenService;
 
         public AuthService(
             IUserRepository userRepository,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            ITokenService tokenService)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _tokenService = tokenService;
         }
 
         public async Task<RegisterResult> RegisterAsync(
             RegisterRequestDto request)
         {
-            // Only Candidate and Recruiter can register themselves.
             if (request.Role != UserRole.Candidate &&
                 request.Role != UserRole.Recruiter)
             {
@@ -32,7 +34,8 @@ namespace TalentSyncAI.Api.Services.Implementations
                     Succeeded = false,
                     Message =
                         "Only Candidate and Recruiter accounts can be self-registered.",
-                    FailureReason = RegisterFailureReason.InvalidRole
+                    FailureReason =
+                        RegisterFailureReason.InvalidRole
                 };
             }
 
@@ -41,14 +44,16 @@ namespace TalentSyncAI.Api.Services.Implementations
                 .ToLowerInvariant();
 
             bool emailExists =
-                await _userRepository.EmailExistsAsync(normalizedEmail);
+                await _userRepository.EmailExistsAsync(
+                    normalizedEmail);
 
             if (emailExists)
             {
                 return new RegisterResult
                 {
                     Succeeded = false,
-                    Message = "An account with this email already exists.",
+                    Message =
+                        "An account with this email already exists.",
                     FailureReason =
                         RegisterFailureReason.EmailAlreadyExists
                 };
@@ -64,7 +69,9 @@ namespace TalentSyncAI.Api.Services.Implementations
             };
 
             user.PasswordHash =
-                _passwordHasher.HashPassword(user, request.Password);
+                _passwordHasher.HashPassword(
+                    user,
+                    request.Password);
 
             await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
@@ -83,6 +90,89 @@ namespace TalentSyncAI.Api.Services.Implementations
                     IsActive = user.IsActive,
                     CreatedAt = user.CreatedAt
                 }
+            };
+        }
+
+        public async Task<LoginResult> LoginAsync(
+            LoginRequestDto request)
+        {
+            string normalizedEmail = request.Email
+                .Trim()
+                .ToLowerInvariant();
+
+            User? user =
+                await _userRepository.GetByEmailAsync(
+                    normalizedEmail);
+
+            if (user is null)
+            {
+                return InvalidCredentialsResult();
+            }
+
+            if (!user.IsActive)
+            {
+                return new LoginResult
+                {
+                    Succeeded = false,
+                    Message =
+                        "This account has been deactivated.",
+                    FailureReason =
+                        LoginFailureReason.InactiveAccount
+                };
+            }
+
+            PasswordVerificationResult verificationResult =
+                _passwordHasher.VerifyHashedPassword(
+                    user,
+                    user.PasswordHash,
+                    request.Password);
+
+            if (verificationResult ==
+                PasswordVerificationResult.Failed)
+            {
+                return InvalidCredentialsResult();
+            }
+
+            if (verificationResult ==
+                PasswordVerificationResult.SuccessRehashNeeded)
+            {
+                user.PasswordHash =
+                    _passwordHasher.HashPassword(
+                        user,
+                        request.Password);
+
+                await _userRepository.SaveChangesAsync();
+            }
+
+            TokenResult tokenResult =
+                _tokenService.CreateToken(user);
+
+            return new LoginResult
+            {
+                Succeeded = true,
+                Message = "Login successful.",
+                FailureReason = LoginFailureReason.None,
+                Data = new LoginResponseDto
+                {
+                    UserId = user.Id,
+                    FullName = user.FullName,
+                    Email = user.Email,
+                    Role = user.Role,
+                    AccessToken = tokenResult.AccessToken,
+                    TokenType = "Bearer",
+                    ExpiresAt = tokenResult.ExpiresAt
+                }
+            };
+        }
+
+        private static LoginResult InvalidCredentialsResult()
+        {
+            return new LoginResult
+            {
+                Succeeded = false,
+                Message = "Invalid email or password.",
+                FailureReason =
+                    LoginFailureReason.InvalidCredentials
             };
         }
     }
