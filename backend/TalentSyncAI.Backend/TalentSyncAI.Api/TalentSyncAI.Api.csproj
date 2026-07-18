@@ -16,7 +16,6 @@
     <Folder Include="DTOs\AI\" />
     <Folder Include="DTOs\Recruiters\" />
     <Folder Include="Middleware\" />
-    <Folder Include="Helpers\" />
     <Folder Include="Factories\" />
     <Folder Include="Strategies\" />
   </ItemGroup>

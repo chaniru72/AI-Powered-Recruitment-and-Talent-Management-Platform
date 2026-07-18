@@ -1,4 +1,5 @@
 ﻿using TalentSyncAI.Api.DTOs.Candidates;
+using TalentSyncAI.Api.Helpers;
 using TalentSyncAI.Api.Models.Entities;
 using TalentSyncAI.Api.Repositories.Interfaces;
 using TalentSyncAI.Api.Services.Interfaces;
@@ -14,12 +15,17 @@ namespace TalentSyncAI.Api.Services.Implementations
         private readonly IUserRepository
             _userRepository;
 
+        private readonly IFileStorageService
+            _fileStorageService;
+
         public CandidateProfileService(
             ICandidateProfileRepository profileRepository,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IFileStorageService fileStorageService)
         {
             _profileRepository = profileRepository;
             _userRepository = userRepository;
+            _fileStorageService = fileStorageService;
         }
 
         public async Task<CandidateProfileResponseDto?>
@@ -78,6 +84,114 @@ namespace TalentSyncAI.Api.Services.Implementations
             await _profileRepository.SaveChangesAsync();
 
             return MapToResponse(profile);
+        }
+
+        public async Task<ResumeUploadResult>
+            UploadResumeAsync(
+                int userId,
+                IFormFile file,
+                CancellationToken cancellationToken = default)
+        {
+            CandidateProfile? profile =
+                await _profileRepository
+                    .GetByUserIdAsync(userId);
+
+            if (profile is null)
+            {
+                return new ResumeUploadResult
+                {
+                    Succeeded = false,
+                    Message =
+                        "Create your Candidate profile before uploading a resume."
+                };
+            }
+
+            FileSaveResult fileSaveResult =
+                await _fileStorageService.SaveResumeAsync(
+                    file,
+                    userId,
+                    cancellationToken);
+
+            if (!fileSaveResult.Succeeded)
+            {
+                return new ResumeUploadResult
+                {
+                    Succeeded = false,
+                    Message = fileSaveResult.Message
+                };
+            }
+
+            string? previousResume =
+                profile.ResumeUrl;
+
+            profile.ResumeUrl =
+                fileSaveResult.StoredFileName;
+
+            profile.UpdatedAt =
+                DateTime.UtcNow;
+
+            try
+            {
+                await _profileRepository
+                    .SaveChangesAsync();
+            }
+            catch
+            {
+                await _fileStorageService
+                    .DeleteResumeAsync(
+                        fileSaveResult.StoredFileName);
+
+                throw;
+            }
+
+            if (!string.IsNullOrWhiteSpace(
+                    previousResume) &&
+                previousResume !=
+                    fileSaveResult.StoredFileName)
+            {
+                await _fileStorageService
+                    .DeleteResumeAsync(previousResume);
+            }
+
+            return new ResumeUploadResult
+            {
+                Succeeded = true,
+                Message =
+                    "Resume uploaded successfully.",
+                Data = new ResumeUploadResponseDto
+                {
+                    FileName =
+                        fileSaveResult.OriginalFileName,
+
+                    DownloadUrl =
+                        "/api/candidates/me/resume",
+
+                    UploadedAt =
+                        profile.UpdatedAt
+                }
+            };
+        }
+
+        public async Task<FileDownloadResult?>
+            GetMyResumeAsync(
+                int userId,
+                CancellationToken cancellationToken = default)
+        {
+            CandidateProfile? profile =
+                await _profileRepository
+                    .GetByUserIdAsync(userId);
+
+            if (profile is null ||
+                string.IsNullOrWhiteSpace(
+                    profile.ResumeUrl))
+            {
+                return null;
+            }
+
+            return await _fileStorageService
+                .OpenResumeAsync(
+                    profile.ResumeUrl,
+                    cancellationToken);
         }
 
         private static CandidateProfileResponseDto
