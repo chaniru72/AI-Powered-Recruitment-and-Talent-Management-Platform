@@ -1,3 +1,5 @@
+using TalentSyncAI.Api.Repositories.Interfaces;
+using TalentSyncAI.Api.Repositories.Implementations;
 using Microsoft.EntityFrameworkCore;
 using TalentSyncAI.Api.Data;
 
@@ -9,6 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 var app = builder.Build();
@@ -30,5 +34,23 @@ app.MapGet("/health", () =>
     });
 });
 
+app.MapGet("/health/database", async (ApplicationDbContext dbContext) =>
+{
+    bool canConnect = await dbContext.Database.CanConnectAsync();
+
+    if (!canConnect)
+    {
+        return Results.StatusCode(
+            StatusCodes.Status503ServiceUnavailable);
+    }
+
+    return Results.Ok(new
+    {
+        status = "Healthy",
+        database = "AIRecruitmentDB",
+        connected = true,
+        timestamp = DateTime.UtcNow
+    });
+});
 
 app.Run();
