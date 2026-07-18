@@ -23,17 +23,26 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter());
     });
 
+string connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "DefaultConnection is missing from appsettings.json.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<
     IPasswordHasher<User>,
     PasswordHasher<User>>();
+
 builder.Services.AddScoped<
     ICandidateProfileRepository,
     CandidateProfileRepository>();
+
+builder.Services.AddScoped<
+    IFileStorageService,
+    LocalFileStorageService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.Configure<JwtSettings>(
