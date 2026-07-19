@@ -25,5 +25,7 @@ namespace TalentSyncAI.Api.Models.Entities
         public Organization? ManagedOrganization { get; set; }
 
         public ICollection<Job> PostedJobs { get; set; } = new List<Job>();
+
+        public ICollection<JobApplication> JobApplications { get; set; } = new List<JobApplication>();
     }
 }

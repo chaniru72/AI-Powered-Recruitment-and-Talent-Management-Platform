@@ -21,6 +21,8 @@ namespace TalentSyncAI.Api.Data
 
         public DbSet<Job> Jobs { get; set; }
 
+        public DbSet<JobApplication> JobApplications { get; set; }
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
@@ -222,6 +224,44 @@ namespace TalentSyncAI.Api.Data
                 entity.HasOne(job => job.RecruiterUser)
                     .WithMany(user => user.PostedJobs)
                     .HasForeignKey(job => job.RecruiterUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ------------------------------------------
+            // Job application configuration
+            // ------------------------------------------
+
+            modelBuilder.Entity<JobApplication>(entity =>
+            {
+                entity.HasKey(application => application.Id);
+
+                entity.HasIndex(application => new
+                {
+                    application.JobId,
+                    application.CandidateUserId
+                }).IsUnique();
+
+                entity.Property(application => application.CoverLetter)
+                    .HasMaxLength(4000);
+
+                entity.Property(application => application.Status)
+                    .HasConversion<string>()
+                    .HasMaxLength(30);
+
+                entity.Property(application => application.AppliedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(application => application.UpdatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(application => application.Job)
+                    .WithMany(job => job.Applications)
+                    .HasForeignKey(application => application.JobId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(application => application.CandidateUser)
+                    .WithMany(user => user.JobApplications)
+                    .HasForeignKey(application => application.CandidateUserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
         }
