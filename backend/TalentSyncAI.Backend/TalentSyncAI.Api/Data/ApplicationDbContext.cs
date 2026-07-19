@@ -19,6 +19,8 @@ namespace TalentSyncAI.Api.Data
 
         public DbSet<Organization> Organizations { get; set; }
 
+        public DbSet<Job> Jobs { get; set; }
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
@@ -77,8 +79,7 @@ namespace TalentSyncAI.Api.Data
                 entity.Property(profile => profile.Education)
                     .HasMaxLength(2000);
 
-                entity.Property(
-                        profile => profile.ExperienceSummary)
+                entity.Property(profile => profile.ExperienceSummary)
                     .HasMaxLength(4000);
 
                 entity.Property(profile => profile.ResumeUrl)
@@ -114,8 +115,7 @@ namespace TalentSyncAI.Api.Data
                 entity.Property(profile => profile.Location)
                     .HasMaxLength(150);
 
-                entity.Property(
-                        profile => profile.ProfessionalSummary)
+                entity.Property(profile => profile.ProfessionalSummary)
                     .HasMaxLength(3000);
 
                 entity.Property(profile => profile.LinkedInUrl)
@@ -137,52 +137,92 @@ namespace TalentSyncAI.Api.Data
 
             modelBuilder.Entity<Organization>(entity =>
             {
-                entity.HasKey(
-                    organization => organization.Id);
+                entity.HasKey(organization => organization.Id);
 
-                entity.HasIndex(
-                        organization =>
-                            organization.RecruiterUserId)
+                entity.HasIndex(organization =>
+                        organization.RecruiterUserId)
                     .IsUnique();
 
-                entity.Property(
-                        organization => organization.Name)
+                entity.Property(organization => organization.Name)
                     .IsRequired()
                     .HasMaxLength(200);
 
-                entity.Property(
-                        organization => organization.Industry)
+                entity.Property(organization => organization.Industry)
                     .HasMaxLength(150);
 
-                entity.Property(
-                        organization => organization.Description)
+                entity.Property(organization => organization.Description)
                     .HasMaxLength(3000);
 
-                entity.Property(
-                        organization => organization.Location)
+                entity.Property(organization => organization.Location)
                     .HasMaxLength(200);
 
-                entity.Property(
-                        organization => organization.WebsiteUrl)
+                entity.Property(organization => organization.WebsiteUrl)
                     .HasMaxLength(500);
 
-                entity.Property(
-                        organization => organization.CreatedAt)
+                entity.Property(organization => organization.CreatedAt)
                     .HasDefaultValueSql("GETUTCDATE()");
 
-                entity.Property(
-                        organization => organization.UpdatedAt)
+                entity.Property(organization => organization.UpdatedAt)
                     .HasDefaultValueSql("GETUTCDATE()");
 
-                entity.HasOne(
-                        organization =>
-                            organization.RecruiterUser)
-                    .WithOne(
-                        user => user.ManagedOrganization)
+                entity.HasOne(organization => organization.RecruiterUser)
+                    .WithOne(user => user.ManagedOrganization)
                     .HasForeignKey<Organization>(
-                        organization =>
-                            organization.RecruiterUserId)
+                        organization => organization.RecruiterUserId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ------------------------------------------
+            // Job configuration
+            // ------------------------------------------
+
+            modelBuilder.Entity<Job>(entity =>
+            {
+                entity.HasKey(job => job.Id);
+
+                entity.Property(job => job.Title)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(job => job.Description)
+                    .IsRequired()
+                    .HasMaxLength(5000);
+
+                entity.Property(job => job.RequiredSkills)
+                    .IsRequired()
+                    .HasMaxLength(2000);
+
+                entity.Property(job => job.Location)
+                    .HasMaxLength(200);
+
+                entity.Property(job => job.EmploymentType)
+                    .HasMaxLength(100);
+
+                entity.Property(job => job.ExperienceLevel)
+                    .HasMaxLength(100);
+
+                entity.Property(job => job.SalaryRange)
+                    .HasMaxLength(100);
+
+                entity.Property(job => job.Status)
+                    .HasConversion<string>()
+                    .HasMaxLength(30);
+
+                entity.Property(job => job.CreatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(job => job.UpdatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(job => job.Organization)
+                    .WithMany(organization => organization.Jobs)
+                    .HasForeignKey(job => job.OrganizationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(job => job.RecruiterUser)
+                    .WithMany(user => user.PostedJobs)
+                    .HasForeignKey(job => job.RecruiterUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

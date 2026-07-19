@@ -25,5 +25,7 @@
 
         // Navigation property to the Recruiter User.
         public User RecruiterUser { get; set; } = null!;
+
+        public ICollection<Job> Jobs { get; set; } = new List<Job>();
     }
 }
