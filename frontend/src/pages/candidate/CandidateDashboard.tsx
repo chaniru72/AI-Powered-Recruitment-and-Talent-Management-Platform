@@ -1,43 +1,90 @@
+import { type CSSProperties } from "react";
+
 import {
   ArrowRight,
+  ArrowUpRight,
+  Award,
   BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
   Clock3,
+  Eye,
   FileText,
   MapPin,
   Sparkles,
+  Target,
   TrendingUp,
 } from "lucide-react";
+
+import { useNavigate } from "react-router-dom";
+
+import "./CandidateDashboard.css";
+
+type StoredUser = {
+  name?: string;
+  fullName?: string;
+  firstName?: string;
+};
 
 const statistics = [
   {
     title: "Applications",
-    value: "12",
+    value: 12,
     change: "+3 this week",
     icon: FileText,
-    color: "bg-blue-500",
+    tone: "coral",
   },
   {
     title: "Interviews",
-    value: "4",
+    value: 4,
     change: "2 upcoming",
     icon: CalendarDays,
-    color: "bg-violet-500",
+    tone: "purple",
   },
   {
     title: "Shortlisted",
-    value: "6",
+    value: 6,
     change: "50% success rate",
     icon: CheckCircle2,
-    color: "bg-emerald-500",
+    tone: "sage",
   },
   {
     title: "Profile Views",
-    value: "48",
+    value: 48,
     change: "+18% this month",
     icon: TrendingUp,
-    color: "bg-orange-500",
+    tone: "peach",
+  },
+];
+
+const journeyStages = [
+  {
+    title: "Applied",
+    value: 12,
+    description: "Total applications",
+    icon: FileText,
+    tone: "coral",
+  },
+  {
+    title: "Under Review",
+    value: 8,
+    description: "Being reviewed",
+    icon: Eye,
+    tone: "peach",
+  },
+  {
+    title: "Interview",
+    value: 4,
+    description: "Interview stage",
+    icon: CalendarDays,
+    tone: "purple",
+  },
+  {
+    title: "Shortlisted",
+    value: 6,
+    description: "Successful progress",
+    icon: Award,
+    tone: "sage",
   },
 ];
 
@@ -70,323 +117,467 @@ const recommendedJobs = [
 
 const recentApplications = [
   {
+    id: 1,
     job: "React Developer",
     company: "TechVision",
     date: "18 Jul 2026",
     status: "Shortlisted",
-    statusStyle: "bg-emerald-50 text-emerald-700",
+    tone: "shortlisted",
   },
   {
+    id: 2,
     job: "Software Engineer Intern",
     company: "CodeLabs",
     date: "16 Jul 2026",
     status: "Under review",
-    statusStyle: "bg-amber-50 text-amber-700",
+    tone: "review",
   },
   {
+    id: 3,
     job: "Junior Web Developer",
     company: "NextWave",
     date: "13 Jul 2026",
     status: "Applied",
-    statusStyle: "bg-blue-50 text-blue-700",
+    tone: "applied",
   },
 ];
 
+function getCandidateName() {
+  try {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return "Candidate";
+    }
+
+    const user = JSON.parse(storedUser) as StoredUser;
+
+    const name =
+      user.fullName ??
+      user.name ??
+      user.firstName ??
+      "Candidate";
+
+    return name.trim().split(/\s+/)[0];
+  } catch {
+    return "Candidate";
+  }
+}
+
 export default function CandidateDashboard() {
+  const navigate = useNavigate();
+
+  const candidateName = getCandidateName();
+  const profileCompletion = 82;
+  const featuredJob = recommendedJobs[0];
+  const additionalJobs = recommendedJobs.slice(1);
+
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      <section
-        className="relative overflow-hidden rounded-3xl
-          bg-gradient-to-r from-blue-700 via-blue-600
-          to-indigo-600 p-6 text-white shadow-xl
-          shadow-blue-200 sm:p-8"
-      >
-        <div
-          className="absolute -right-20 -top-24 h-64 w-64
-            rounded-full bg-white/10 blur-2xl"
-        />
+    <div className="clear-dashboard">
+      {/* Compact welcome and profile focus */}
+      <section className="clear-intro">
+        <div className="clear-intro-decoration clear-decoration-one" />
+        <div className="clear-intro-decoration clear-decoration-two" />
 
-        <div
-          className="absolute -bottom-28 right-32 h-56 w-56
-            rounded-full bg-cyan-300/20 blur-3xl"
-        />
-
-        <div className="relative z-10 max-w-2xl">
-          <span
-            className="mb-4 inline-flex items-center gap-2
-              rounded-full border border-white/20 bg-white/10
-              px-3 py-1.5 text-xs font-semibold"
-          >
+        <div className="clear-intro-copy">
+          <span className="clear-eyebrow">
             <Sparkles size={15} />
-            AI-powered career dashboard
+            AI-powered candidate command centre
           </span>
 
-          <h1 className="text-2xl font-bold sm:text-3xl">
-            Welcome back, Vibhavi!
+          <h1>
+            Your next opportunity starts here,
+            <span>{candidateName}.</span>
           </h1>
 
-          <p className="mt-3 max-w-xl text-sm leading-6 text-blue-100 sm:text-base">
-            Your profile is attracting recruiters. Complete the remaining
-            sections to improve your AI job-match score.
+          <p>
+            Review your progress, discover your strongest job matches,
+            and continue building a profile recruiters will notice.
           </p>
+
+          <div className="clear-intro-actions">
+            <button
+              type="button"
+              className="clear-primary-button"
+              onClick={() => navigate("/candidate/jobs")}
+            >
+              Explore opportunities
+              <ArrowRight size={17} />
+            </button>
+
+            <button
+              type="button"
+              className="clear-secondary-button"
+              onClick={() => navigate("/candidate/profile")}
+            >
+              Update profile
+            </button>
+          </div>
+        </div>
+
+        <aside className="clear-focus-card">
+          <header>
+            <div>
+              <span>Profile readiness</span>
+              <h2>Almost recruiter-ready</h2>
+            </div>
+
+            <Target size={22} />
+          </header>
+
+          <div className="clear-focus-content">
+            <div
+              className="clear-profile-ring"
+              style={
+                {
+                  "--progress-angle": `${profileCompletion * 3.6}deg`,
+                } as CSSProperties
+              }
+            >
+              <div>
+                <strong>{profileCompletion}%</strong>
+                <span>Complete</span>
+              </div>
+            </div>
+
+            <div className="clear-focus-copy">
+              <span>Next best action</span>
+
+              <p>
+                Add your work experience to improve your job matches.
+              </p>
+
+              <div>
+                <small>Best match</small>
+                <strong>94%</strong>
+              </div>
+            </div>
+          </div>
 
           <button
             type="button"
-            className="mt-5 inline-flex items-center gap-2 rounded-xl
-              bg-white px-4 py-2.5 text-sm font-bold text-blue-700
-              shadow-lg transition hover:-translate-y-0.5"
+            onClick={() => navigate("/candidate/profile")}
           >
             Complete profile
-            <ArrowRight size={17} />
+            <ArrowUpRight size={16} />
           </button>
+        </aside>
+      </section>
+
+      {/* Recruitment lifecycle */}
+      <section className="clear-lifecycle">
+        <header className="clear-section-header">
+          <div>
+            <span>Candidate journey</span>
+            <h2>Your recruitment lifecycle</h2>
+            <p>
+              Follow every opportunity from application to shortlist.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() =>
+              navigate("/candidate/applications")
+            }
+          >
+            View applications
+            <ArrowRight size={15} />
+          </button>
+        </header>
+
+        <div className="clear-lifecycle-track">
+          <span className="clear-track-line" />
+
+          {journeyStages.map((stage, index) => {
+            const Icon = stage.icon;
+
+            return (
+              <article
+                key={stage.title}
+                className={`clear-stage clear-stage-${stage.tone}`}
+              >
+                <div className="clear-stage-icon">
+                  <Icon size={20} />
+                </div>
+
+                <div className="clear-stage-content">
+                  <strong>{stage.value}</strong>
+                  <h3>{stage.title}</h3>
+                  <p>{stage.description}</p>
+                </div>
+
+                {index < journeyStages.length - 1 && (
+                  <ArrowRight
+                    size={17}
+                    className="clear-stage-arrow"
+                  />
+                )}
+              </article>
+            );
+          })}
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {statistics.map((item) => {
-          const Icon = item.icon;
+      {/* Asymmetric workspace */}
+      <div className="clear-bento">
+        {/* Featured opportunity */}
+        <section className="clear-featured-job">
+          <div className="clear-featured-top">
+            <span className="clear-featured-label">
+              <Sparkles size={14} />
+              Featured opportunity
+            </span>
 
-          return (
-            <article
-              key={item.title}
-              className="rounded-2xl border border-slate-200
-                bg-white p-5 shadow-sm transition
-                hover:-translate-y-1 hover:shadow-lg"
+            <div
+              className="clear-job-match"
+              style={
+                {
+                  "--match-angle": `${featuredJob.match * 3.6}deg`,
+                } as CSSProperties
+              }
             >
-              <div className="flex items-start justify-between">
-                <span
-                  className={`grid h-11 w-11 place-items-center
-                    rounded-xl text-white shadow-md ${item.color}`}
-                >
-                  <Icon size={21} />
-                </span>
+              <span>{featuredJob.match}%</span>
+            </div>
+          </div>
 
-                <span className="text-2xl font-bold text-slate-900">
-                  {item.value}
-                </span>
-              </div>
+          <div className="clear-featured-company">
+            <span>
+              <BriefcaseBusiness size={25} />
+            </span>
 
-              <h2 className="mt-4 text-sm font-semibold text-slate-700">
-                {item.title}
-              </h2>
-
-              <p className="mt-1 text-xs text-slate-500">
-                {item.change}
-              </p>
-            </article>
-          );
-        })}
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[1.45fr_0.8fr]">
-        <article
-          className="rounded-2xl border border-slate-200
-            bg-white p-5 shadow-sm sm:p-6"
-        >
-          <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Recommended jobs
-              </h2>
+              <small>Best match for your profile</small>
+              <h2>{featuredJob.title}</h2>
+              <p>{featuredJob.company}</p>
+            </div>
+          </div>
 
-              <p className="mt-1 text-sm text-slate-500">
-                Selected using your skills and experience
-              </p>
+          <div className="clear-featured-details">
+            <span>
+              <MapPin size={15} />
+              {featuredJob.location}
+            </span>
+
+            <span>
+              <Clock3 size={15} />
+              {featuredJob.type}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate("/candidate/jobs")}
+          >
+            View opportunity
+            <ArrowUpRight size={17} />
+          </button>
+        </section>
+
+        {/* Connected statistics */}
+        <section className="clear-performance">
+          <header>
+            <div>
+              <span>Performance</span>
+              <h2>Career activity</h2>
+            </div>
+
+            <TrendingUp size={21} />
+          </header>
+
+          <div className="clear-statistics">
+            {statistics.map((statistic) => {
+              const Icon = statistic.icon;
+
+              return (
+                <article
+                  key={statistic.title}
+                  className={`clear-statistic clear-statistic-${statistic.tone}`}
+                >
+                  <span className="clear-statistic-icon">
+                    <Icon size={18} />
+                  </span>
+
+                  <div>
+                    <span>{statistic.title}</span>
+                    <small>{statistic.change}</small>
+                  </div>
+
+                  <strong>{statistic.value}</strong>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Additional opportunities */}
+        <section className="clear-opportunities">
+          <header className="clear-section-header">
+            <div>
+              <span>Recommended</span>
+              <h2>More opportunities</h2>
             </div>
 
             <button
               type="button"
-              className="text-sm font-bold text-blue-600 hover:text-blue-700"
+              onClick={() => navigate("/candidate/jobs")}
             >
               View all
+              <ArrowRight size={15} />
             </button>
-          </div>
+          </header>
 
-          <div className="space-y-3">
-            {recommendedJobs.map((job) => (
-              <div
+          <div className="clear-opportunity-list">
+            {additionalJobs.map((job) => (
+              <article
                 key={job.id}
-                className="flex flex-col gap-4 rounded-2xl
-                  border border-slate-200 p-4 transition
-                  hover:border-blue-200 hover:bg-blue-50/40
-                  sm:flex-row sm:items-center"
+                className="clear-opportunity-item"
               >
-                <span
-                  className="grid h-12 w-12 flex-none place-items-center
-                    rounded-xl bg-blue-100 text-blue-700"
-                >
-                  <BriefcaseBusiness size={22} />
+                <span className="clear-opportunity-icon">
+                  <BriefcaseBusiness size={20} />
                 </span>
 
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-bold text-slate-900">
-                    {job.title}
-                  </h3>
+                <div className="clear-opportunity-copy">
+                  <h3>{job.title}</h3>
+                  <p>{job.company}</p>
 
-                  <p className="mt-1 text-sm text-slate-500">
-                    {job.company}
-                  </p>
-
-                  <div
-                    className="mt-2 flex flex-wrap items-center
-                      gap-x-4 gap-y-1 text-xs text-slate-500"
-                  >
-                    <span className="flex items-center gap-1">
+                  <div>
+                    <span>
                       <MapPin size={13} />
                       {job.location}
                     </span>
 
-                    <span className="flex items-center gap-1">
+                    <span>
                       <Clock3 size={13} />
                       {job.type}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-4 sm:block">
-                  <span
-                    className="inline-flex rounded-full bg-emerald-50
-                      px-3 py-1 text-xs font-bold text-emerald-700"
-                  >
-                    {job.match}% match
-                  </span>
+                <div className="clear-opportunity-action">
+                  <strong>{job.match}% match</strong>
 
                   <button
                     type="button"
-                    className="text-sm font-bold text-blue-600 sm:mt-3"
+                    onClick={() =>
+                      navigate("/candidate/jobs")
+                    }
                   >
-                    View job
+                    <ArrowUpRight size={16} />
                   </button>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
-        </article>
+        </section>
 
-        <article
-          className="rounded-2xl border border-slate-200
-            bg-white p-5 shadow-sm sm:p-6"
-        >
-          <h2 className="text-lg font-bold text-slate-900">
-            Profile strength
-          </h2>
+        {/* Profile checklist */}
+        <section className="clear-profile-checklist">
+          <header>
+            <span>Profile strength</span>
+            <h2>Build a stronger profile</h2>
+            <p>Complete every step to rank higher.</p>
+          </header>
 
-          <p className="mt-1 text-sm text-slate-500">
-            Complete your profile to rank higher
-          </p>
-
-          <div className="mx-auto mt-7 grid h-40 w-40 place-items-center">
-            <div
-              className="grid h-36 w-36 place-items-center rounded-full"
-              style={{
-                background:
-                  "conic-gradient(#2563eb 0deg 295deg, #e2e8f0 295deg 360deg)",
-              }}
-            >
-              <div
-                className="grid h-28 w-28 place-items-center
-                  rounded-full bg-white text-center shadow-inner"
-              >
-                <div>
-                  <strong className="block text-3xl text-slate-900">
-                    82%
-                  </strong>
-
-                  <span className="text-xs text-slate-500">
-                    Completed
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-3 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-slate-600">Personal details</span>
-              <CheckCircle2 size={17} className="text-emerald-500" />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-600">Skills and education</span>
-              <CheckCircle2 size={17} className="text-emerald-500" />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-slate-600">Work experience</span>
-              <span className="text-xs font-bold text-amber-600">
-                Add details
+          <div className="clear-checklist">
+            <div className="is-complete">
+              <span>
+                <CheckCircle2 size={18} />
+                Personal details
               </span>
+
+              <strong>Complete</strong>
+            </div>
+
+            <div className="is-complete">
+              <span>
+                <CheckCircle2 size={18} />
+                Skills and education
+              </span>
+
+              <strong>Complete</strong>
+            </div>
+
+            <div className="is-incomplete">
+              <span>
+                <Clock3 size={18} />
+                Work experience
+              </span>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/candidate/profile")
+                }
+              >
+                Add details
+              </button>
             </div>
           </div>
-        </article>
-      </section>
+        </section>
 
-      <section
-        className="rounded-2xl border border-slate-200
-          bg-white p-5 shadow-sm sm:p-6"
-      >
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900">
-              Recent applications
-            </h2>
+        {/* Application activity timeline */}
+        <section className="clear-activity">
+          <header className="clear-section-header">
+            <div>
+              <span>Recent activity</span>
+              <h2>Application timeline</h2>
+              <p>
+                Your latest application progress and updates.
+              </p>
+            </div>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Track your latest application progress
-            </p>
-          </div>
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/candidate/applications")
+              }
+            >
+              View all
+              <ArrowRight size={15} />
+            </button>
+          </header>
 
-          <button
-            type="button"
-            className="text-sm font-bold text-blue-600"
-          >
-            View all
-          </button>
-        </div>
+          <div className="clear-activity-list">
+            {recentApplications.map((application) => (
+              <article
+                key={application.id}
+                className="clear-activity-item"
+              >
+                <span
+                  className={`clear-activity-marker clear-status-${application.tone}`}
+                />
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[620px] text-left">
-            <thead>
-              <tr className="border-b border-slate-200 text-xs uppercase text-slate-500">
-                <th className="pb-3 font-semibold">Position</th>
-                <th className="pb-3 font-semibold">Company</th>
-                <th className="pb-3 font-semibold">Applied date</th>
-                <th className="pb-3 font-semibold">Status</th>
-              </tr>
-            </thead>
+                <div className="clear-activity-copy">
+                  <strong>{application.job}</strong>
+                  <span>{application.company}</span>
+                </div>
 
-            <tbody>
-              {recentApplications.map((application) => (
-                <tr
-                  key={`${application.job}-${application.company}`}
-                  className="border-b border-slate-100 last:border-0"
+                <span className="clear-activity-date">
+                  <CalendarDays size={14} />
+                  {application.date}
+                </span>
+
+                <span
+                  className={`clear-activity-status clear-status-${application.tone}`}
                 >
-                  <td className="py-4 text-sm font-semibold text-slate-800">
-                    {application.job}
-                  </td>
+                  {application.status}
+                </span>
 
-                  <td className="py-4 text-sm text-slate-600">
-                    {application.company}
-                  </td>
-
-                  <td className="py-4 text-sm text-slate-500">
-                    {application.date}
-                  </td>
-
-                  <td className="py-4">
-                    <span
-                      className={`rounded-full px-3 py-1
-                        text-xs font-bold ${application.statusStyle}`}
-                    >
-                      {application.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                <button
+                  type="button"
+                  aria-label={`View ${application.job} application`}
+                  onClick={() =>
+                    navigate("/candidate/applications")
+                  }
+                >
+                  <Eye size={17} />
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
