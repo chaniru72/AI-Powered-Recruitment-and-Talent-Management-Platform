@@ -55,6 +55,8 @@ builder.Services.AddScoped<
     IOrganizationRepository,
     OrganizationRepository>();
 
+builder.Services.AddScoped<IJobRepository, JobRepository>();
+
 // -------------------------------------------------
 // Password hashing
 // -------------------------------------------------
@@ -90,6 +92,8 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     ITokenService,
     TokenService>();
+
+builder.Services.AddScoped<IJobService, JobService>();
 
 // -------------------------------------------------
 // JWT configuration
