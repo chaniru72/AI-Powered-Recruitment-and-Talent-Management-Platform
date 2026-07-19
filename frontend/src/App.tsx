@@ -3,9 +3,11 @@ import {
   Route,
   Routes,
 } from "react-router-dom";
+
 import DashboardLayout from "./layouts/DashboardLayout";
 import LoginPage from "./pages/auth/LoginPage";
 import CandidateDashboard from "./pages/candidate/CandidateDashboard";
+import CandidateJobs from "./pages/candidate/CandidateJobs";
 
 export default function App() {
   return (
@@ -37,6 +39,11 @@ export default function App() {
         <Route
           path="dashboard"
           element={<CandidateDashboard />}
+        />
+
+        <Route
+          path="jobs"
+          element={<CandidateJobs />}
         />
       </Route>
 

@@ -1,4 +1,391 @@
 /* =========================================================
+   DASHBOARD ANIMATIONS
+   ========================================================= */
+
+/* Page entrance */
+
+.clear-intro {
+  animation: clearFadeUp 650ms ease-out both;
+}
+
+.clear-lifecycle {
+  animation: clearFadeUp 650ms 100ms ease-out both;
+}
+
+.clear-bento {
+  animation: clearFadeUp 650ms 180ms ease-out both;
+}
+
+.clear-activity {
+  animation: clearFadeUp 650ms 240ms ease-out both;
+}
+
+/* Welcome background movement */
+
+.clear-decoration-one {
+  animation: clearDecorationFloat 8s ease-in-out infinite;
+}
+
+.clear-decoration-two {
+  animation: clearDecorationFloat 10s 1s ease-in-out infinite reverse;
+}
+
+/* Profile progress ring */
+
+.clear-profile-ring {
+  animation: clearProgressAppear 900ms 350ms ease-out both;
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.clear-focus-card:hover .clear-profile-ring {
+  transform: scale(1.06) rotate(4deg);
+  box-shadow:
+    0 0 0 8px rgba(255, 137, 104, 0.1),
+    0 10px 25px rgba(255, 137, 104, 0.18);
+}
+
+/* Journey stage entrance */
+
+.clear-stage {
+  animation: clearStageEnter 520ms ease-out both;
+}
+
+.clear-stage:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.clear-stage:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.clear-stage:nth-child(4) {
+  animation-delay: 260ms;
+}
+
+.clear-stage:nth-child(5) {
+  animation-delay: 340ms;
+}
+
+.clear-stage-icon {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.clear-stage:hover .clear-stage-icon {
+  transform: translateY(-3px) scale(1.08) rotate(-4deg);
+}
+
+.clear-stage-arrow {
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.clear-stage:hover .clear-stage-arrow {
+  transform: translateX(4px);
+  opacity: 1;
+}
+
+/* Featured opportunity */
+
+.clear-featured-job {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.clear-featured-job:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 35px rgba(54, 92, 84, 0.14);
+}
+
+.clear-featured-job::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -80%;
+  z-index: 0;
+  width: 45%;
+  height: 100%;
+  transform: skewX(-20deg);
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.42),
+    transparent
+  );
+  transition: left 700ms ease;
+}
+
+.clear-featured-job:hover::before {
+  left: 130%;
+}
+
+/* Match indicator */
+
+.clear-job-match {
+  animation: clearMatchPulse 3.2s ease-in-out infinite;
+  transition: transform 220ms ease;
+}
+
+.clear-featured-job:hover .clear-job-match {
+  transform: scale(1.08);
+}
+
+/* Performance statistics */
+
+.clear-statistic {
+  animation: clearStatisticEnter 500ms ease-out both;
+}
+
+.clear-statistic:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.clear-statistic:nth-child(3) {
+  animation-delay: 150ms;
+}
+
+.clear-statistic:nth-child(4) {
+  animation-delay: 220ms;
+}
+
+.clear-statistic:hover .clear-statistic-icon {
+  animation: clearIconBounce 450ms ease;
+}
+
+/* Recommended opportunity rows */
+
+.clear-opportunity-item {
+  animation: clearRowEnter 500ms ease-out both;
+}
+
+.clear-opportunity-item:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.clear-opportunity-item:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.clear-opportunity-item:hover .clear-opportunity-icon {
+  transform: scale(1.08) rotate(-5deg);
+}
+
+.clear-opportunity-icon {
+  transition: transform 220ms ease;
+}
+
+.clear-opportunity-action button {
+  transition:
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.clear-opportunity-action button:hover {
+  transform: translateX(3px);
+  background: var(--clear-coral-soft);
+}
+
+/* Profile checklist */
+
+.clear-checklist > div {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.clear-checklist > div:hover {
+  transform: translateX(4px);
+  border-color: var(--clear-coral);
+  box-shadow: 0 7px 15px rgba(54, 92, 84, 0.08);
+}
+
+/* Application timeline */
+
+.clear-activity-item {
+  animation: clearTimelineEnter 520ms ease-out both;
+  transition: background 180ms ease;
+}
+
+.clear-activity-item:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.clear-activity-item:nth-child(3) {
+  animation-delay: 180ms;
+}
+
+.clear-activity-item:nth-child(4) {
+  animation-delay: 260ms;
+}
+
+.clear-activity-item:hover {
+  background: rgba(255, 240, 232, 0.45);
+}
+
+.clear-activity-marker {
+  animation: clearMarkerPulse 2.6s ease-in-out infinite;
+}
+
+/* Button arrow movement */
+
+.clear-primary-button svg,
+.clear-secondary-button svg,
+.clear-section-header button svg,
+.clear-featured-job button svg {
+  transition: transform 180ms ease;
+}
+
+.clear-primary-button:hover svg,
+.clear-secondary-button:hover svg,
+.clear-section-header button:hover svg,
+.clear-featured-job button:hover svg {
+  transform: translateX(4px);
+}
+
+/* Keyframes */
+
+@keyframes clearFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes clearStageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes clearStatisticEnter {
+  from {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes clearRowEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes clearTimelineEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes clearDecorationFloat {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(16px, -12px, 0);
+  }
+}
+
+@keyframes clearProgressAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.65) rotate(-50deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes clearMatchPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 137, 104, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 137, 104, 0.1);
+  }
+}
+
+@keyframes clearMarkerPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px var(--clear-coral),
+      0 0 0 5px rgba(255, 137, 104, 0);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 2px var(--clear-coral),
+      0 0 0 7px rgba(255, 137, 104, 0.13);
+  }
+}
+
+@keyframes clearIconBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  45% {
+    transform: translateY(-6px);
+  }
+
+  70% {
+    transform: translateY(2px);
+  }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .clear-dashboard *,
+  .clear-dashboard *::before,
+  .clear-dashboard *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* =========================================================
    CANDIDATE DASHBOARD
    Scoped coral, sage and cream theme
    ========================================================= */

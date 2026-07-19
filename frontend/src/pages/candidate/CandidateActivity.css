@@ -1,0 +1,345 @@
+/* =========================================================
+   CANDIDATE APPLICATION ACTIVITY TIMELINE
+   Contains styling only — no hardcoded application data
+   ========================================================= */
+
+.clear-activity {
+  width: 100%;
+  padding: 28px;
+  overflow: hidden;
+  border: 1px solid #dce5df;
+  border-radius: 26px;
+  color: #203a34;
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(255, 137, 104, 0.09),
+      transparent 27%
+    ),
+    rgba(255, 255, 255, 0.97);
+  box-shadow: 0 12px 30px rgba(54, 92, 84, 0.09);
+}
+
+/* Section heading */
+
+.clear-activity .clear-section-header {
+  padding-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid #e8eeea;
+}
+
+.clear-activity .clear-section-header h2 {
+  margin: 0;
+  color: #203a34;
+  font-size: 21px;
+  line-height: 1.3;
+}
+
+.clear-activity .clear-section-header p {
+  margin: 6px 0 0;
+  color: #71847e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.clear-activity .clear-section-header button {
+  padding: 7px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  border: 0;
+  color: #f47f60;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 750;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.clear-activity .clear-section-header button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Timeline container */
+
+.clear-activity-list {
+  position: relative;
+  margin-top: 20px;
+  padding-left: 16px;
+  display: grid;
+  gap: 13px;
+}
+
+/* Vertical coloured line */
+
+.clear-activity-list::before {
+  content: "";
+  position: absolute;
+  top: 29px;
+  bottom: 29px;
+  left: 23px;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    #f47f60,
+    #7568bd,
+    #268d76
+  );
+}
+
+/* Individual application card */
+
+.clear-activity-item {
+  position: relative;
+  min-width: 0;
+  min-height: 94px;
+  padding: 17px 16px 17px 49px;
+  display: grid;
+  grid-template-columns:
+    minmax(230px, 1fr)
+    minmax(125px, 0.34fr)
+    minmax(110px, auto)
+    40px;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid #e1e9e4;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #ffffff, #fdfbf7);
+  box-shadow: 0 5px 15px rgba(52, 83, 75, 0.05);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.clear-activity-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 137, 104, 0.55);
+  background: linear-gradient(145deg, #ffffff, #fff5ef);
+  box-shadow: 0 11px 24px rgba(52, 83, 75, 0.1);
+}
+
+/* Timeline marker */
+
+.clear-activity-marker {
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  z-index: 2;
+  width: 17px;
+  height: 17px;
+  transform: translateY(-50%);
+  border: 4px solid #ffffff;
+  border-radius: 50%;
+  background: #f47f60;
+  box-shadow:
+    0 0 0 2px #f47f60,
+    0 4px 10px rgba(244, 127, 96, 0.21);
+}
+
+/* Position and company */
+
+.clear-activity-copy {
+  min-width: 0;
+}
+
+.clear-activity-copy strong {
+  display: block;
+  overflow: hidden;
+  color: #203a34;
+  font-size: 14px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clear-activity-copy span,
+.clear-activity-copy small {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  color: #71847e;
+  font-size: 11px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Application date */
+
+.clear-activity-date {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #71847e;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.clear-activity-date svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  color: #4f766d;
+}
+
+/* Status badge */
+
+.clear-activity-status {
+  justify-self: end;
+  padding: 7px 11px;
+  border-radius: 999px;
+  color: #4c625c;
+  background: #eef3f0;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.clear-status-applied {
+  color: #3868aa;
+  background: #eaf1fc;
+}
+
+.clear-status-under-review,
+.clear-status-review {
+  color: #99611f;
+  background: #fff3df;
+}
+
+.clear-status-interview {
+  color: #6752a8;
+  background: #f0edfb;
+}
+
+.clear-status-shortlisted {
+  color: #14725d;
+  background: #e4f7ef;
+}
+
+.clear-status-rejected {
+  color: #b44646;
+  background: #fdecec;
+}
+
+/* Eye/view button */
+
+.clear-activity-item > button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  justify-self: end;
+  border: 1px solid #dce6e1;
+  border-radius: 11px;
+  color: #315f55;
+  background: #f3f7f5;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.clear-activity-item > button:hover {
+  transform: translateX(2px);
+  border-color: #f47f60;
+  color: #a94d35;
+  background: #ffd1c1;
+}
+
+.clear-activity-item > button svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Tablet */
+
+@media (max-width: 850px) {
+  .clear-activity-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 15px;
+  }
+
+  .clear-activity-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .clear-activity-item > button {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .clear-activity-date {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .clear-activity-status {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 520px) {
+  .clear-activity {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .clear-activity .clear-section-header {
+    flex-direction: column;
+  }
+
+  .clear-activity-list {
+    padding-left: 10px;
+  }
+
+  .clear-activity-list::before {
+    left: 17px;
+  }
+
+  .clear-activity-item {
+    padding: 15px 13px 15px 40px;
+    grid-template-columns: minmax(0, 1fr) 36px;
+  }
+
+  .clear-activity-marker {
+    left: -1px;
+  }
+
+  .clear-activity-date {
+    grid-column: 1 / -1;
+  }
+
+  .clear-activity-status {
+    grid-column: 1 / -1;
+    justify-self: start;
+    width: fit-content;
+  }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .clear-activity *,
+  .clear-activity *::before,
+  .clear-activity *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}

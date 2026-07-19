@@ -19,6 +19,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import "./CandidateDashboard.css";
+import "./CandidateActivity.css";
 
 type StoredUser = {
   name?: string;

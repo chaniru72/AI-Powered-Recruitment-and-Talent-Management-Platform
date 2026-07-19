@@ -1,3 +1,4 @@
+import "./CandidateJobs.css";
 import { useMemo, useState } from "react";
 import {
   Bookmark,
@@ -129,7 +130,7 @@ export default function CandidateJobs() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="candidate-jobs-portal space-y-6">
       <section>
         <span
           className="inline-flex items-center gap-2 rounded-full
