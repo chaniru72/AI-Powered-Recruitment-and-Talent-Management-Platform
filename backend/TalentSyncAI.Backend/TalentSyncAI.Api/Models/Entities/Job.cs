@@ -35,5 +35,7 @@ namespace TalentSyncAI.Api.Models.Entities
         public Organization Organization { get; set; } = null!;
 
         public User RecruiterUser { get; set; } = null!;
+
+        public ICollection<JobApplication> Applications { get; set; } = new List<JobApplication>();
     }
 }
