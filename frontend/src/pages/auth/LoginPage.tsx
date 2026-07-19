@@ -8,6 +8,8 @@ import {
   UserRound,
 } from "lucide-react";
 
+import "./LoginPage.css";
+
 type Mode = "signin" | "signup";
 
 type FormErrors = {
@@ -40,7 +42,7 @@ export default function LoginPage() {
     window.history.replaceState(
       null,
       "",
-      newMode === "signup" ? "#signup" : "#signin"
+      newMode === "signup" ? "#signup" : "#signin",
     );
   };
 
@@ -82,25 +84,31 @@ export default function LoginPage() {
 
     setLoading(true);
 
+    // Temporary demo response.
+    // We will replace this with the backend authentication request later.
     window.setTimeout(() => {
       setLoading(false);
 
       if (mode === "signin") {
         setMessage(
-          "Demo login successful. Backend authentication will be connected later."
+          "Demo login successful. Backend authentication will be connected later.",
         );
       } else {
         setMessage(
-          "Demo account created successfully. Registration API will be connected later."
+          "Demo account created successfully. Registration API will be connected later.",
         );
       }
     }, 800);
   };
 
   return (
-    <main className="login-page">
+    <main className="login-page auth-login-page">
       <div className="login-container">
-        <section className="brand-section">
+        {/* Left animated section */}
+        <section
+          className="brand-section"
+          aria-label="TalentSync AI introduction"
+        >
           <div className="brand-logo">
             <div className="logo-symbol" aria-hidden="true">
               <span />
@@ -143,6 +151,7 @@ export default function LoginPage() {
           </div>
         </section>
 
+        {/* Right authentication section */}
         <section className="form-section">
           <div
             className={`form-wrapper ${
@@ -151,9 +160,7 @@ export default function LoginPage() {
           >
             <header className="form-header">
               <h2>
-                {mode === "signin"
-                  ? "Welcome back"
-                  : "Create account"}
+                {mode === "signin" ? "Welcome back" : "Create account"}
               </h2>
 
               <p>
@@ -193,7 +200,7 @@ export default function LoginPage() {
                   </div>
 
                   {errors.name && (
-                    <small className="error-message">
+                    <small className="error-message" role="alert">
                       {errors.name}
                     </small>
                   )}
@@ -228,7 +235,7 @@ export default function LoginPage() {
                 </div>
 
                 {errors.email && (
-                  <small className="error-message">
+                  <small className="error-message" role="alert">
                     {errors.email}
                   </small>
                 )}
@@ -268,9 +275,7 @@ export default function LoginPage() {
                     className="password-button"
                     type="button"
                     aria-label={
-                      showPassword
-                        ? "Hide password"
-                        : "Show password"
+                      showPassword ? "Hide password" : "Show password"
                     }
                     onClick={() => {
                       setShowPassword((current) => !current);
@@ -285,7 +290,7 @@ export default function LoginPage() {
                 </div>
 
                 {errors.password && (
-                  <small className="error-message">
+                  <small className="error-message" role="alert">
                     {errors.password}
                   </small>
                 )}
@@ -322,7 +327,7 @@ export default function LoginPage() {
                   </div>
 
                   {errors.confirmPassword && (
-                    <small className="error-message">
+                    <small className="error-message" role="alert">
                       {errors.confirmPassword}
                     </small>
                   )}
@@ -383,7 +388,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => {
                     setMessage(
-                      "Google authentication will be connected through the backend later."
+                      "Google authentication will be connected through the backend later.",
                     );
                   }}
                 >
@@ -403,11 +408,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => {
-                  if (mode === "signin") {
-                    changeMode("signup");
-                  } else {
-                    changeMode("signin");
-                  }
+                  changeMode(mode === "signin" ? "signup" : "signin");
                 }}
               >
                 {mode === "signin" ? "Sign Up" : "Sign In"}
