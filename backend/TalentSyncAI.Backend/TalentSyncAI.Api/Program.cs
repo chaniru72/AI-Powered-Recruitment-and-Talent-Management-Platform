@@ -67,6 +67,10 @@ builder.Services.AddScoped<
     IInterviewRepository, 
     InterviewRepository>();
 
+builder.Services.AddScoped<
+    IEvaluationRepository,
+    EvaluationRepository>();
+
 
 
 // -------------------------------------------------
@@ -124,6 +128,10 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IInterviewService, 
     InterviewService>();
+
+builder.Services.AddScoped<
+    IEvaluationService,
+    EvaluationService>();
 
 // -------------------------------------------------
 // JWT configuration

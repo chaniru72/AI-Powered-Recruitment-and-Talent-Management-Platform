@@ -24,5 +24,7 @@ namespace TalentSyncAI.Api.Models.Entities
 
         public ICollection<Interview> Interviews { get; set; }
     = new List<Interview>();
+
+        public Evaluation? Evaluation { get; set; }
     }
 }
