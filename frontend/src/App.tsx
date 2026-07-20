@@ -9,6 +9,8 @@ import LoginPage from "./pages/auth/LoginPage";
 import CandidateDashboard from "./pages/candidate/CandidateDashboard";
 import CandidateJobs from "./pages/candidate/CandidateJobs";
 import CandidateApplications from "./pages/candidate/CandidateApplications";
+import CandidateProfile from "./pages/candidate/CandidateProfile";
+
 export default function App() {
   return (
     <Routes>
@@ -45,10 +47,16 @@ export default function App() {
           path="jobs"
           element={<CandidateJobs />}
         />
+
         <Route
-  path="applications"
-  element={<CandidateApplications />}
-/>
+          path="applications"
+          element={<CandidateApplications />}
+        />
+
+        <Route
+          path="profile"
+          element={<CandidateProfile />}
+        />
       </Route>
 
       <Route
