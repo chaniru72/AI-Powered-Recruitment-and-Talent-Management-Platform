@@ -23,6 +23,8 @@ namespace TalentSyncAI.Api.Data
 
         public DbSet<JobApplication> JobApplications { get; set; }
 
+        public DbSet<Interview> Interviews { get; set; }
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
@@ -263,6 +265,44 @@ namespace TalentSyncAI.Api.Data
                     .WithMany(user => user.JobApplications)
                     .HasForeignKey(application => application.CandidateUserId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+            // ------------------------------------------
+            // Interview configuration
+            // ------------------------------------------
+
+            modelBuilder.Entity<Interview>(entity =>
+            {
+                entity.HasKey(interview => interview.Id);
+
+                entity.HasIndex(interview => interview.JobApplicationId);
+
+                entity.Property(interview => interview.Title)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(interview => interview.MeetingLink)
+                    .HasMaxLength(500);
+
+                entity.Property(interview => interview.Location)
+                    .HasMaxLength(200);
+
+                entity.Property(interview => interview.Notes)
+                    .HasMaxLength(3000);
+
+                entity.Property(interview => interview.Status)
+                    .HasConversion<string>()
+                    .HasMaxLength(30);
+
+                entity.Property(interview => interview.CreatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(interview => interview.UpdatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(interview => interview.JobApplication)
+                    .WithMany(application => application.Interviews)
+                    .HasForeignKey(interview => interview.JobApplicationId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

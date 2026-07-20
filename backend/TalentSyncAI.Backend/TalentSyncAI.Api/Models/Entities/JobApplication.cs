@@ -21,5 +21,8 @@ namespace TalentSyncAI.Api.Models.Entities
         public Job Job { get; set; } = null!;
 
         public User CandidateUser { get; set; } = null!;
+
+        public ICollection<Interview> Interviews { get; set; }
+    = new List<Interview>();
     }
 }
