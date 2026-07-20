@@ -106,8 +106,12 @@ builder.Services.AddScoped<
     JobService>();
 
 builder.Services.AddScoped<
-    IJobApplicationService, 
+    IJobApplicationService,
     JobApplicationService>();
+
+builder.Services.AddScoped<
+    IAnalyticsService, 
+    AnalyticsService>();
 
 // -------------------------------------------------
 // JWT configuration
