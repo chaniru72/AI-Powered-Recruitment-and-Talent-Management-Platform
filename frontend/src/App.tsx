@@ -9,6 +9,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import CandidateDashboard from "./pages/candidate/CandidateDashboard";
 import CandidateJobs from "./pages/candidate/CandidateJobs";
 import CandidateApplications from "./pages/candidate/CandidateApplications";
+import CandidateMessages from "./pages/candidate/CandidateMessages";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
 
 export default function App() {
@@ -51,6 +52,11 @@ export default function App() {
         <Route
           path="applications"
           element={<CandidateApplications />}
+        />
+
+        <Route
+          path="messages"
+          element={<CandidateMessages />}
         />
 
         <Route
