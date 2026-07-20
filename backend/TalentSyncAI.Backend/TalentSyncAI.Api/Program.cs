@@ -63,6 +63,10 @@ builder.Services.AddScoped<
     IJobApplicationRepository,
     JobApplicationRepository>();
 
+builder.Services.AddScoped<
+    IInterviewRepository, 
+    InterviewRepository>();
+
 
 
 // -------------------------------------------------
@@ -116,6 +120,10 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IAiMatchingService, 
     AiMatchingService>();
+
+builder.Services.AddScoped<
+    IInterviewService, 
+    InterviewService>();
 
 // -------------------------------------------------
 // JWT configuration
