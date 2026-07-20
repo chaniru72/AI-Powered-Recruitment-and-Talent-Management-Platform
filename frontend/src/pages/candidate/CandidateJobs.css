@@ -1,0 +1,729 @@
+/* =========================================================
+   HERO SPACING AND COMPACT JOB ACTION BUTTONS
+   Styling only — no job data is hardcoded here
+   ========================================================= */
+
+/* Add clear space between the introduction and filters */
+
+.candidate-jobs-portal
+  > section:nth-of-type(2) {
+  margin-top: 16px !important;
+}
+
+/* Keep the filter panel aligned with the introduction */
+
+.candidate-jobs-portal
+  > section:nth-of-type(2) {
+  width: 100%;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Make View details and Apply now buttons smaller */
+
+.candidate-jobs-portal
+  article
+  button[class*="border-blue"],
+.candidate-jobs-portal
+  article
+  button[class*="bg-blue-600"] {
+  min-width: auto;
+  min-height: 35px;
+  padding: 7px 13px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+/* Keep the buttons neatly aligned */
+
+.candidate-jobs-portal
+  article
+  div[class*="border-t"]
+  > div:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Slightly reduce the Best match selector */
+
+.candidate-jobs-portal
+  > section:nth-of-type(3)
+  > div
+  > div:first-child
+  select {
+  min-width: 112px;
+  height: 36px;
+  padding: 0 30px 0 12px;
+  border-radius: 9px !important;
+  font-size: 11px !important;
+}
+
+/* Mobile alignment */
+
+@media (max-width: 640px) {
+  .candidate-jobs-portal
+    > section:nth-of-type(2) {
+    margin-top: 12px !important;
+  }
+
+  .candidate-jobs-portal
+    article
+    button[class*="border-blue"],
+  .candidate-jobs-portal
+    article
+    button[class*="bg-blue-600"] {
+    min-height: 34px;
+    padding: 7px 11px !important;
+    font-size: 11px !important;
+  }
+}
+/* =========================================================
+   JOBS PORTAL ALIGNMENT AND SUBTLE ANIMATIONS
+   ========================================================= */
+
+/* Align hero, filters and content to the same edges */
+
+.candidate-jobs-portal > section:nth-of-type(2) {
+  width: 100%;
+  margin-top: -22px !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+  box-sizing: border-box;
+}
+
+.candidate-jobs-portal > section:nth-of-type(3) {
+  width: 100%;
+  margin-top: 24px !important;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 300px);
+  box-sizing: border-box;
+}
+
+.candidate-jobs-portal > section:nth-of-type(3) > div {
+  min-width: 0;
+}
+
+.candidate-jobs-portal article {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.candidate-jobs-portal aside {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Keep filter controls equally aligned */
+
+.candidate-jobs-portal
+  > section:nth-of-type(2)
+  > div {
+  width: 100%;
+  align-items: center;
+}
+
+.candidate-jobs-portal
+  > section:nth-of-type(2)
+  label,
+.candidate-jobs-portal
+  > section:nth-of-type(2)
+  select,
+.candidate-jobs-portal
+  > section:nth-of-type(2)
+  button {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Page entrance */
+
+.candidate-jobs-portal
+  > section:first-of-type {
+  animation: jobsHeroEnter 600ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.candidate-jobs-portal
+  > section:nth-of-type(2) {
+  animation: jobsFilterEnter 600ms 100ms
+    cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.candidate-jobs-portal
+  > section:nth-of-type(3) {
+  animation: jobsContentEnter 600ms 180ms
+    ease-out both;
+}
+
+/* Job cards enter one after another */
+
+.candidate-jobs-portal article {
+  animation: jobsCardEnter 520ms ease-out both;
+}
+
+.candidate-jobs-portal article:nth-of-type(1) {
+  animation-delay: 220ms;
+}
+
+.candidate-jobs-portal article:nth-of-type(2) {
+  animation-delay: 290ms;
+}
+
+.candidate-jobs-portal article:nth-of-type(3) {
+  animation-delay: 360ms;
+}
+
+.candidate-jobs-portal article:nth-of-type(4) {
+  animation-delay: 430ms;
+}
+
+.candidate-jobs-portal article:nth-of-type(5) {
+  animation-delay: 500ms;
+}
+
+/* Right panels */
+
+.candidate-jobs-portal aside > div {
+  animation: jobsSidePanelEnter 550ms
+    ease-out both;
+}
+
+.candidate-jobs-portal aside > div:first-child {
+  animation-delay: 280ms;
+}
+
+.candidate-jobs-portal aside > div:last-child {
+  animation-delay: 370ms;
+}
+
+/* Small decorative movement */
+
+.candidate-jobs-portal
+  > section:first-of-type::before {
+  animation: jobsDecorationFloat 7s
+    ease-in-out infinite;
+}
+
+/* Animation definitions */
+
+@keyframes jobsHeroEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes jobsFilterEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes jobsContentEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes jobsCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes jobsSidePanelEnter {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes jobsDecorationFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(4deg);
+  }
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .candidate-jobs-portal
+    > section:nth-of-type(3) {
+    grid-template-columns: 1fr;
+  }
+
+  .candidate-jobs-portal aside {
+    position: static;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 640px) {
+  .candidate-jobs-portal
+    > section:nth-of-type(2) {
+    margin-top: -25px !important;
+  }
+
+  .candidate-jobs-portal
+    > section:nth-of-type(3) {
+    margin-top: 18px !important;
+  }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .candidate-jobs-portal
+    > section,
+  .candidate-jobs-portal article,
+  .candidate-jobs-portal aside > div,
+  .candidate-jobs-portal
+    > section:first-of-type::before {
+    animation: none !important;
+  }
+}
+/* =========================================================
+   TALENTSYNC CANDIDATE JOBS PORTAL
+   Visual styling only — job data remains outside this file
+   ========================================================= */
+
+.candidate-jobs-portal {
+  --jobs-dark: #173f37;
+  --jobs-dark-deep: #0f302a;
+  --jobs-sage: #436d62;
+  --jobs-sage-soft: #dce9e3;
+  --jobs-cream: #fff8ef;
+  --jobs-peach: #ffd4c3;
+  --jobs-coral: #f18161;
+  --jobs-coral-dark: #d96345;
+  --jobs-text: #19362f;
+  --jobs-muted: #6d817a;
+  --jobs-border: rgba(59, 101, 90, 0.18);
+
+  position: relative;
+  width: 100%;
+  max-width: none !important;
+  min-height: 100%;
+  padding: clamp(18px, 2.5vw, 32px);
+  overflow-x: hidden;
+  border-radius: 26px;
+  color: var(--jobs-text);
+  background:
+    radial-gradient(
+      circle at 85% 10%,
+      rgba(241, 129, 97, 0.18),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 5% 80%,
+      rgba(80, 128, 115, 0.18),
+      transparent 27%
+    ),
+    linear-gradient(145deg, #f7eee2, #edf2ec);
+}
+
+/* INTRODUCTION */
+
+.candidate-jobs-portal > section:first-of-type {
+  position: relative;
+  min-height: 190px;
+  padding: 30px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 25px;
+  color: #fffaf3;
+  background:
+    radial-gradient(
+      circle at 85% 50%,
+      rgba(255, 170, 139, 0.25),
+      transparent 28%
+    ),
+    linear-gradient(
+      135deg,
+      var(--jobs-dark-deep),
+      var(--jobs-dark)
+    );
+  box-shadow: 0 20px 42px rgba(24, 63, 54, 0.2);
+}
+
+.candidate-jobs-portal > section:first-of-type::before {
+  content: "";
+  position: absolute;
+  right: 7%;
+  bottom: -90px;
+  width: 230px;
+  height: 230px;
+  border: 28px solid rgba(255, 212, 195, 0.08);
+  border-radius: 50%;
+}
+
+.candidate-jobs-portal > section:first-of-type::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  right: 30%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--jobs-coral);
+  box-shadow:
+    50px 50px 0 rgba(255, 212, 195, 0.5),
+    130px 12px 0 rgba(255, 255, 255, 0.28);
+}
+
+.candidate-jobs-portal > section:first-of-type > * {
+  position: relative;
+  z-index: 1;
+}
+
+.candidate-jobs-portal > section:first-of-type > span {
+  color: #ffe2d5 !important;
+  background: rgba(241, 129, 97, 0.18) !important;
+  border: 1px solid rgba(255, 191, 167, 0.3);
+}
+
+.candidate-jobs-portal > section:first-of-type h1 {
+  max-width: 650px;
+  color: #fffaf3 !important;
+  font-size: clamp(30px, 3vw, 46px) !important;
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+}
+
+.candidate-jobs-portal > section:first-of-type p {
+  max-width: 620px;
+  color: rgba(255, 250, 243, 0.72) !important;
+}
+
+/* FILTER CONTROL PANEL */
+
+.candidate-jobs-portal > section:nth-of-type(2) {
+  position: relative;
+  z-index: 2;
+  margin-top: -25px;
+  margin-right: 22px;
+  margin-left: 22px;
+  padding: 17px !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  border-radius: 19px !important;
+  background: rgba(255, 250, 243, 0.88) !important;
+  box-shadow:
+    0 14px 30px rgba(33, 72, 62, 0.14),
+    inset 0 1px 0 #ffffff !important;
+  backdrop-filter: blur(18px);
+}
+
+.candidate-jobs-portal > section:nth-of-type(2) label,
+.candidate-jobs-portal > section:nth-of-type(2) select {
+  border-color: var(--jobs-border) !important;
+  color: var(--jobs-text) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+}
+
+.candidate-jobs-portal > section:nth-of-type(2) label:focus-within,
+.candidate-jobs-portal > section:nth-of-type(2) select:focus {
+  border-color: var(--jobs-coral) !important;
+  box-shadow: 0 0 0 4px rgba(241, 129, 97, 0.12);
+}
+
+.candidate-jobs-portal > section:nth-of-type(2) button {
+  border-color: rgba(241, 129, 97, 0.35) !important;
+  color: var(--jobs-coral-dark) !important;
+  background: #fff8f3;
+}
+
+.candidate-jobs-portal > section:nth-of-type(2) button:hover {
+  color: #ffffff !important;
+  background: var(--jobs-coral) !important;
+}
+
+/* JOBS WORKSPACE */
+
+.candidate-jobs-portal > section:nth-of-type(3) {
+  align-items: start;
+}
+
+.candidate-jobs-portal > section:nth-of-type(3) > div > div:first-child {
+  padding: 0 4px;
+}
+
+.candidate-jobs-portal > section:nth-of-type(3) > div > div:first-child p {
+  color: var(--jobs-muted) !important;
+}
+
+.candidate-jobs-portal > section:nth-of-type(3) > div > div:first-child strong {
+  color: var(--jobs-text) !important;
+}
+
+.candidate-jobs-portal > section:nth-of-type(3) select {
+  border-color: var(--jobs-border) !important;
+  color: var(--jobs-text) !important;
+  background: rgba(255, 250, 243, 0.86) !important;
+}
+
+/* JOB OPPORTUNITY CARDS */
+
+.candidate-jobs-portal article {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(71, 110, 100, 0.16) !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0.94),
+      rgba(255, 248, 239, 0.88)
+    ) !important;
+  box-shadow:
+    0 12px 26px rgba(40, 77, 67, 0.09),
+    inset 0 1px 0 #ffffff !important;
+  backdrop-filter: blur(16px);
+}
+
+.candidate-jobs-portal article::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 5px;
+  background: linear-gradient(
+    180deg,
+    var(--jobs-coral),
+    var(--jobs-sage)
+  );
+}
+
+.candidate-jobs-portal article:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(241, 129, 97, 0.42) !important;
+  box-shadow: 0 20px 38px rgba(38, 78, 67, 0.15) !important;
+}
+
+.candidate-jobs-portal article > div > span {
+  color: var(--jobs-dark) !important;
+  background: var(--jobs-peach) !important;
+  box-shadow: 0 8px 18px rgba(241, 129, 97, 0.16);
+}
+
+.candidate-jobs-portal article h2 {
+  color: var(--jobs-text) !important;
+}
+
+.candidate-jobs-portal article h2 + p {
+  color: var(--jobs-sage) !important;
+}
+
+.candidate-jobs-portal article p {
+  color: var(--jobs-text);
+}
+
+.candidate-jobs-portal article button[aria-label="Save job"] {
+  border-color: var(--jobs-border) !important;
+  color: var(--jobs-sage) !important;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.candidate-jobs-portal article button[aria-label="Save job"]:hover {
+  color: var(--jobs-coral) !important;
+  border-color: rgba(241, 129, 97, 0.4) !important;
+}
+
+.candidate-jobs-portal article span[class*="bg-slate-100"] {
+  color: var(--jobs-dark) !important;
+  background: var(--jobs-sage-soft) !important;
+}
+
+.candidate-jobs-portal article span[class*="bg-emerald"] {
+  color: #215c4d !important;
+  background: #dff3e9 !important;
+}
+
+/* JOB ACTION BUTTONS */
+
+.candidate-jobs-portal article button[class*="border-blue"] {
+  border-color: rgba(241, 129, 97, 0.42) !important;
+  color: var(--jobs-coral-dark) !important;
+  background: #fffaf5;
+}
+
+.candidate-jobs-portal article button[class*="border-blue"]:hover {
+  background: #ffe8de !important;
+}
+
+.candidate-jobs-portal article button[class*="bg-blue-600"] {
+  color: #ffffff !important;
+  background: linear-gradient(
+    135deg,
+    var(--jobs-coral),
+    var(--jobs-coral-dark)
+  ) !important;
+  box-shadow: 0 9px 18px rgba(217, 99, 69, 0.22) !important;
+}
+
+.candidate-jobs-portal article button[class*="bg-blue-600"]:hover {
+  transform: translateY(-2px);
+  background: var(--jobs-coral-dark) !important;
+}
+
+/* RIGHT PORTAL PANELS */
+
+.candidate-jobs-portal aside {
+  position: sticky;
+  top: 18px;
+}
+
+.candidate-jobs-portal aside > div:first-child {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 22px !important;
+  color: #fffaf3;
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(241, 129, 97, 0.36),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      var(--jobs-dark-deep),
+      var(--jobs-sage)
+    ) !important;
+  box-shadow: 0 18px 34px rgba(26, 65, 55, 0.2) !important;
+}
+
+.candidate-jobs-portal aside > div:first-child p {
+  color: rgba(255, 250, 243, 0.72) !important;
+}
+
+.candidate-jobs-portal aside > div:first-child button {
+  color: var(--jobs-dark) !important;
+  background: var(--jobs-peach) !important;
+}
+
+.candidate-jobs-portal aside > div:first-child button:hover {
+  background: #ffffff !important;
+}
+
+.candidate-jobs-portal aside > div:last-child {
+  border-color: var(--jobs-border) !important;
+  border-radius: 22px !important;
+  background: rgba(255, 250, 243, 0.86) !important;
+  box-shadow: 0 12px 26px rgba(40, 77, 67, 0.09) !important;
+  backdrop-filter: blur(16px);
+}
+
+.candidate-jobs-portal aside > div:last-child h2 {
+  color: var(--jobs-text) !important;
+}
+
+.candidate-jobs-portal aside > div:last-child button {
+  border-color: var(--jobs-border) !important;
+  color: var(--jobs-sage) !important;
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.candidate-jobs-portal aside > div:last-child button:hover {
+  border-color: var(--jobs-coral) !important;
+  color: var(--jobs-coral-dark) !important;
+  background: #fff0e9 !important;
+}
+
+/* EMPTY RESULT */
+
+.candidate-jobs-portal div[class*="border-dashed"] {
+  border-color: rgba(241, 129, 97, 0.35) !important;
+  background: rgba(255, 250, 243, 0.84) !important;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .candidate-jobs-portal {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .candidate-jobs-portal > section:first-of-type {
+    min-height: 170px;
+    padding: 24px;
+  }
+
+  .candidate-jobs-portal > section:nth-of-type(2) {
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+
+  .candidate-jobs-portal aside {
+    position: static;
+  }
+}
+
+@media (max-width: 640px) {
+  .candidate-jobs-portal {
+    padding: 12px;
+  }
+
+  .candidate-jobs-portal > section:first-of-type {
+    min-height: 190px;
+    padding: 22px 18px 46px;
+  }
+
+  .candidate-jobs-portal > section:nth-of-type(2) {
+    margin-top: -32px;
+    margin-right: 8px;
+    margin-left: 8px;
+  }
+
+  .candidate-jobs-portal article {
+    padding: 18px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .candidate-jobs-portal *,
+  .candidate-jobs-portal *::before,
+  .candidate-jobs-portal *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
