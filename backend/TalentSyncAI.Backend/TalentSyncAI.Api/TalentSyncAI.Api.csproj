@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\Evaluations\" />
     <Folder Include="DTOs\Admin\" />
     <Folder Include="Middleware\" />
     <Folder Include="Factories\" />

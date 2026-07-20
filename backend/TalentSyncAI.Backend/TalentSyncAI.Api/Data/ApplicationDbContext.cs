@@ -25,6 +25,8 @@ namespace TalentSyncAI.Api.Data
 
         public DbSet<Interview> Interviews { get; set; }
 
+        public DbSet<Evaluation> Evaluations { get; set; }
+
         protected override void OnModelCreating(
             ModelBuilder modelBuilder)
         {
@@ -302,6 +304,56 @@ namespace TalentSyncAI.Api.Data
                 entity.HasOne(interview => interview.JobApplication)
                     .WithMany(application => application.Interviews)
                     .HasForeignKey(interview => interview.JobApplicationId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ------------------------------------------
+            // Evaluation configuration
+            // ------------------------------------------
+
+            modelBuilder.Entity<Evaluation>(entity =>
+            {
+                entity.HasKey(evaluation => evaluation.Id);
+
+                entity.HasIndex(evaluation =>
+                    evaluation.JobApplicationId)
+                    .IsUnique();
+
+                entity.Property(evaluation =>
+                    evaluation.OverallScore)
+                    .HasPrecision(5, 2);
+
+                entity.Property(evaluation =>
+                    evaluation.Strengths)
+                    .HasMaxLength(3000);
+
+                entity.Property(evaluation =>
+                    evaluation.Weaknesses)
+                    .HasMaxLength(3000);
+
+                entity.Property(evaluation =>
+                    evaluation.Comments)
+                    .HasMaxLength(5000);
+
+                entity.Property(evaluation =>
+                    evaluation.Decision)
+                    .HasConversion<string>()
+                    .HasMaxLength(40);
+
+                entity.Property(evaluation =>
+                    evaluation.CreatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.Property(evaluation =>
+                    evaluation.UpdatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(evaluation =>
+                        evaluation.JobApplication)
+                    .WithOne(application =>
+                        application.Evaluation)
+                    .HasForeignKey<Evaluation>(evaluation =>
+                        evaluation.JobApplicationId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }
