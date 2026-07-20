@@ -1,4 +1,319 @@
 /* =========================================================
+   APPLICATION TIMELINE — FINAL ALIGNMENT
+   Presentation only; application data remains unchanged
+   ========================================================= */
+
+.clear-activity {
+  width: 100%;
+  padding: 28px;
+  box-sizing: border-box;
+}
+
+/* Header */
+
+.clear-activity .clear-section-header {
+  width: 100%;
+  min-height: 70px;
+  margin: 0 0 20px;
+  padding: 0 0 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid rgba(62, 101, 91, 0.14);
+}
+
+.clear-activity
+  .clear-section-header
+  > div {
+  min-width: 0;
+}
+
+.clear-activity
+  .clear-section-header
+  span {
+  display: block;
+  margin: 0 0 4px;
+}
+
+.clear-activity
+  .clear-section-header
+  h2 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+.clear-activity
+  .clear-section-header
+  p {
+  margin: 7px 0 0;
+  color: var(--clear-muted);
+  line-height: 1.45;
+}
+
+.clear-activity
+  .clear-section-header
+  button {
+  flex: none;
+  margin: 0;
+  padding: 7px 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Timeline container */
+
+.clear-activity .clear-activity-list {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 0 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* Continuous timeline line */
+
+.clear-activity
+  .clear-activity-list::before {
+  content: "";
+  position: absolute;
+  top: 35px;
+  bottom: 35px;
+  left: 8px;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--clear-coral),
+    var(--clear-purple),
+    var(--clear-green)
+  );
+}
+
+/* Application row */
+
+.clear-activity .clear-activity-item {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 92px;
+  margin: 0;
+  padding: 18px 17px 18px 24px;
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 1fr)
+    minmax(125px, 0.45fr)
+    minmax(105px, auto)
+    40px;
+  align-items: center;
+  column-gap: 20px;
+  box-sizing: border-box;
+  border-radius: 18px;
+}
+
+/* Timeline marker */
+
+.clear-activity .clear-activity-marker {
+  position: absolute;
+  top: 50%;
+  left: -25px;
+  z-index: 2;
+  width: 19px;
+  height: 19px;
+  margin: 0;
+  transform: translateY(-50%);
+  border: 3px solid var(--clear-coral);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.92);
+}
+
+/* Position and company */
+
+.clear-activity .clear-activity-copy {
+  min-width: 0;
+  margin: 0;
+  align-self: center;
+}
+
+.clear-activity
+  .clear-activity-copy
+  h3 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--clear-text);
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clear-activity
+  .clear-activity-copy
+  p {
+  margin: 6px 0 0;
+  color: var(--clear-muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+/* Date */
+
+.clear-activity .clear-activity-date {
+  min-width: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  color: var(--clear-muted);
+  font-size: 11px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Status */
+
+.clear-activity .clear-activity-status {
+  min-width: 92px;
+  margin: 0;
+  padding: 7px 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+  border-radius: 999px;
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* View button */
+
+.clear-activity
+  .clear-activity-item
+  button {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  justify-self: end;
+  border-radius: 11px;
+}
+
+/* Small hover effect */
+
+.clear-activity .clear-activity-item {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.clear-activity .clear-activity-item:hover {
+  transform: translateX(3px);
+  border-color: rgba(241, 129, 97, 0.4);
+  box-shadow: 0 10px 24px rgba(40, 78, 69, 0.09);
+}
+
+/* Tablet */
+
+@media (max-width: 850px) {
+  .clear-activity .clear-activity-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    row-gap: 12px;
+  }
+
+  .clear-activity .clear-activity-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .clear-activity .clear-activity-status {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .clear-activity .clear-activity-date {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .clear-activity
+    .clear-activity-item
+    button {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 560px) {
+  .clear-activity {
+    padding: 20px;
+  }
+
+  .clear-activity .clear-section-header {
+    min-height: 0;
+  }
+
+  .clear-activity
+    .clear-section-header
+    button {
+    font-size: 11px;
+  }
+
+  .clear-activity .clear-activity-list {
+    padding-left: 20px;
+  }
+
+  .clear-activity
+    .clear-activity-list::before {
+    left: 7px;
+  }
+
+  .clear-activity .clear-activity-marker {
+    left: -21px;
+    width: 17px;
+    height: 17px;
+  }
+
+  .clear-activity .clear-activity-item {
+    min-height: 105px;
+    padding: 16px;
+  }
+
+  .clear-activity
+    .clear-activity-copy
+    h3 {
+    white-space: normal;
+  }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+  .clear-activity .clear-activity-item {
+    transition: none;
+  }
+
+  .clear-activity
+    .clear-activity-item:hover {
+    transform: none;
+  }
+}
+/* =========================================================
    CANDIDATE APPLICATION ACTIVITY TIMELINE
    Contains styling only — no hardcoded application data
    ========================================================= */
