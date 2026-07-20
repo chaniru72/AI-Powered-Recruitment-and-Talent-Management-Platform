@@ -113,6 +113,10 @@ builder.Services.AddScoped<
     IAnalyticsService, 
     AnalyticsService>();
 
+builder.Services.AddScoped<
+    IAiMatchingService, 
+    AiMatchingService>();
+
 // -------------------------------------------------
 // JWT configuration
 // -------------------------------------------------
