@@ -23,6 +23,10 @@ builder.Services.AddControllers()
             new JsonStringEnumConverter());
     });
 
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen();
+
 // Read the SQL Server connection string.
 string connectionString =
     builder.Configuration.GetConnectionString(
@@ -211,6 +215,11 @@ var app = builder.Build();
 // -------------------------------------------------
 // Middleware
 // -------------------------------------------------
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 
