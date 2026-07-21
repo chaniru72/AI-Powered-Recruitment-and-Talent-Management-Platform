@@ -19,6 +19,10 @@ namespace TalentSyncAI.Api.Data
 
         public DbSet<Organization> Organizations { get; set; }
 
+        public DbSet<Department> Departments { get; set; }
+
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
         public DbSet<Job> Jobs { get; set; }
 
         public DbSet<JobApplication> JobApplications { get; set; }
@@ -177,6 +181,30 @@ namespace TalentSyncAI.Api.Data
                         organization => organization.RecruiterUserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            // ------------------------------------------
+// Department configuration
+// ------------------------------------------
+
+modelBuilder.Entity<Department>(entity =>
+{
+    entity.HasKey(department => department.Id);
+
+    entity.Property(department => department.Name)
+        .IsRequired()
+        .HasMaxLength(150);
+
+    entity.Property(department => department.Description)
+        .HasMaxLength(500);
+
+    entity.Property(department => department.CreatedAt)
+        .HasDefaultValueSql("GETUTCDATE()");
+
+    entity.HasOne(department => department.Organization)
+        .WithMany(organization => organization.Departments)
+        .HasForeignKey(department => department.OrganizationId)
+        .OnDelete(DeleteBehavior.Cascade);
+});
 
             // ------------------------------------------
             // Job configuration
@@ -356,6 +384,36 @@ namespace TalentSyncAI.Api.Data
                         evaluation.JobApplicationId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            // ------------------------------------------
+// Audit log configuration
+// ------------------------------------------
+
+modelBuilder.Entity<AuditLog>(entity =>
+{
+    entity.HasKey(auditLog => auditLog.Id);
+
+    entity.Property(auditLog => auditLog.Action)
+        .IsRequired()
+        .HasMaxLength(150);
+
+    entity.Property(auditLog => auditLog.EntityName)
+        .IsRequired()
+        .HasMaxLength(150);
+
+    entity.Property(auditLog => auditLog.Details)
+        .HasMaxLength(2000);
+
+    entity.Property(auditLog => auditLog.CreatedAt)
+        .HasDefaultValueSql("GETUTCDATE()");
+
+    entity.HasIndex(auditLog => auditLog.CreatedAt);
+
+    entity.HasOne(auditLog => auditLog.AdminUser)
+        .WithMany()
+        .HasForeignKey(auditLog => auditLog.AdminUserId)
+        .OnDelete(DeleteBehavior.SetNull);
+});
         }
     }
 }
