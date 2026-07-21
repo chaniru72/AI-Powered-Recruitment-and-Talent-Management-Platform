@@ -67,10 +67,12 @@ namespace TalentSyncAI.Api.Services.Implementations
             using var response = await _httpClient.SendAsync(request, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
-            {
-                throw new InvalidOperationException(
-                    $"Gemini API request failed with status code {(int)response.StatusCode}.");
-            }
+{
+    var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
+
+    throw new InvalidOperationException(
+        $"Gemini API request failed with status code {(int)response.StatusCode}. Response: {errorBody}");
+}
 
             await using var responseStream =
                 await response.Content.ReadAsStreamAsync(cancellationToken);

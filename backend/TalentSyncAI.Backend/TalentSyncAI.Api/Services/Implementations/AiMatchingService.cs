@@ -71,8 +71,20 @@ namespace TalentSyncAI.Api.Services.Implementations
                         candidate.FullName,
                         candidateSkillText);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Console.WriteLine("===== GEMINI ERROR START =====");
+                    Console.WriteLine(ex.GetType().Name);
+                    Console.WriteLine(ex.Message);
+
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine("Inner exception:");
+                        Console.WriteLine(ex.InnerException.Message);
+                    }
+
+                    Console.WriteLine("===== GEMINI ERROR END =====");
+
                     matchResult = CreateRuleBasedMatch(
                         requiredSkills,
                         candidateSkills);
