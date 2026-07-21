@@ -70,7 +70,10 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IEvaluationRepository,
     EvaluationRepository>();
-
+    
+builder.Services.AddScoped<
+    IAdminRepository,
+    AdminRepository>();
 
 
 // -------------------------------------------------
