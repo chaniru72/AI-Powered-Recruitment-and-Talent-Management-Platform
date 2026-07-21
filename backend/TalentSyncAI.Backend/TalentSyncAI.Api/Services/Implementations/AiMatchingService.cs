@@ -123,7 +123,7 @@ namespace TalentSyncAI.Api.Services.Implementations
             string candidateName,
             string candidateSkills)
         {
-            string prompt = $"""
+            string prompt = $$"""
                 You are an AI recruitment assistant for a recruitment platform.
 
                 Your task is to compare a candidate with a job and return a suitability result.
@@ -136,12 +136,12 @@ namespace TalentSyncAI.Api.Services.Implementations
                 Do not include explanation outside JSON.
 
                 Required JSON format:
-                {{
+                {
                   "matchScore": 0,
                   "matchedSkills": ["skill1", "skill2"],
                   "missingSkills": ["skill1", "skill2"],
                   "recommendation": "short recruiter-friendly recommendation"
-                }}
+                }
 
                 Rules:
                 - matchScore must be between 0 and 100.
@@ -151,16 +151,16 @@ namespace TalentSyncAI.Api.Services.Implementations
                 - Keep recommendation short and professional.
 
                 Job Title:
-                {jobTitle}
+                {{jobTitle}}
 
                 Job Required Skills:
-                {requiredSkills}
+                {{requiredSkills}}
 
                 Candidate Name:
-                {candidateName}
+                {{candidateName}}
 
                 Candidate Skills:
-                {candidateSkills}
+                {{candidateSkills}}
                 """;
 
             string responseText =
