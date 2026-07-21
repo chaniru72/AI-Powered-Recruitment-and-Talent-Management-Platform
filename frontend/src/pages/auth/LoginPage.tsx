@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import axios from "axios";
 import {
   ArrowRight,
   Eye,
@@ -10,7 +11,9 @@ import {
   UserRound,
   UsersRound,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
+import { login } from "../../services/authService";
 import "./LoginPage.css";
 
 type Mode = "signin" | "signup";
@@ -23,6 +26,7 @@ type FormErrors = {
 };
 
 export default function LoginPage() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,7 +53,7 @@ export default function LoginPage() {
     );
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const newErrors: FormErrors = {};
@@ -87,20 +91,57 @@ export default function LoginPage() {
 
     setLoading(true);
 
-    // Temporary response. Replace with the real backend request later.
-    window.setTimeout(() => {
-      setLoading(false);
-
-      if (mode === "signin") {
-        setMessage(
-          "Demo login successful. Backend authentication will be connected later.",
-        );
-      } else {
+    if (mode === "signup") {
+      window.setTimeout(() => {
         setMessage(
           "Demo account created successfully. Registration API will be connected later.",
         );
+        setLoading(false);
+      }, 800);
+
+      return;
+    }
+
+    try {
+      const response = await login({
+        email,
+        password,
+      });
+
+      const { accessToken, userId, fullName, role, expiresAt } = response.data;
+
+      if (role === "Candidate") {
+        localStorage.setItem("token", accessToken);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            userId,
+            fullName,
+            email: response.data.email,
+            role,
+            expiresAt,
+          }),
+        );
+        navigate("/candidate/dashboard", { replace: true });
+      } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setMessage(
+          `Login successful, but the ${role} dashboard is not available yet.`,
+        );
       }
-    }, 800);
+    } catch (error) {
+      if (axios.isAxiosError<{ message?: string }>(error)) {
+        setMessage(
+          error.response?.data?.message ??
+            "Unable to sign in. Please try again.",
+        );
+      } else {
+        setMessage("Unable to sign in. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
