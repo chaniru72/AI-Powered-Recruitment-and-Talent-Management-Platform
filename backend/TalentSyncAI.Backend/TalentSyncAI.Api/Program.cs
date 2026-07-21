@@ -70,7 +70,7 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IEvaluationRepository,
     EvaluationRepository>();
-    
+
 builder.Services.AddScoped<
     IAdminRepository,
     AdminRepository>();
@@ -135,6 +135,10 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IEvaluationService,
     EvaluationService>();
+
+builder.Services.AddScoped<
+    IAdminService,
+    AdminService>();
 
 // -------------------------------------------------
 // JWT configuration
