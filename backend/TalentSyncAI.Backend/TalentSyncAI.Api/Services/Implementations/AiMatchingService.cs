@@ -73,19 +73,15 @@ namespace TalentSyncAI.Api.Services.Implementations
                 }
                 catch (Exception ex)
                 {
-                    string debugError =
-                        CreateDebugErrorMessage(ex);
-
-                    Console.WriteLine("===== GEMINI ERROR START =====");
-                    Console.WriteLine(debugError);
-                    Console.WriteLine("===== GEMINI ERROR END =====");
+                    Console.WriteLine("Gemini AI matching failed.");
+                    Console.WriteLine(ex.Message);
 
                     matchResult = CreateRuleBasedMatch(
                         requiredSkills,
                         candidateSkills);
 
                     matchResult.Recommendation =
-                        $"{matchResult.Recommendation} Gemini AI was unavailable, so fallback skill matching was used. Debug error: {debugError}";
+                        $"{matchResult.Recommendation} Gemini AI was unavailable, so fallback skill matching was used.";
                 }
 
                 results.Add(
@@ -197,7 +193,7 @@ namespace TalentSyncAI.Api.Services.Implementations
             if (jsonStart < 0 || jsonEnd < jsonStart)
             {
                 throw new InvalidOperationException(
-                    $"Gemini response did not contain valid JSON. Raw response: {CreateShortDebugText(responseText)}");
+                    "Gemini response did not contain valid JSON.");
             }
 
             string json =
@@ -220,7 +216,7 @@ namespace TalentSyncAI.Api.Services.Implementations
             catch (JsonException ex)
             {
                 throw new InvalidOperationException(
-                    $"Gemini JSON parsing failed. JSON: {CreateShortDebugText(json)}",
+                    "Gemini JSON parsing failed.",
                     ex);
             }
 
@@ -344,39 +340,6 @@ namespace TalentSyncAI.Api.Services.Implementations
             }
 
             return "No required skills currently match this job.";
-        }
-
-        private static string CreateDebugErrorMessage(
-            Exception ex)
-        {
-            string message =
-                $"{ex.GetType().Name}: {ex.Message}";
-
-            if (ex.InnerException != null)
-            {
-                message +=
-                    $" | Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}";
-            }
-
-            return CreateShortDebugText(message);
-        }
-
-        private static string CreateShortDebugText(
-            string? text)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                return string.Empty;
-            }
-
-            string cleanedText =
-                text.Replace("\r", " ")
-                    .Replace("\n", " ")
-                    .Trim();
-
-            return cleanedText.Length <= 800
-                ? cleanedText
-                : cleanedText.Substring(0, 800);
         }
 
         private class AiMatchResult
