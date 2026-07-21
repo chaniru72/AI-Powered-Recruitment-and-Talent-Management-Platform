@@ -73,16 +73,11 @@ namespace TalentSyncAI.Api.Services.Implementations
                 }
                 catch (Exception ex)
                 {
+                    string debugError =
+                        CreateDebugErrorMessage(ex);
+
                     Console.WriteLine("===== GEMINI ERROR START =====");
-                    Console.WriteLine(ex.GetType().Name);
-                    Console.WriteLine(ex.Message);
-
-                    if (ex.InnerException != null)
-                    {
-                        Console.WriteLine("Inner exception:");
-                        Console.WriteLine(ex.InnerException.Message);
-                    }
-
+                    Console.WriteLine(debugError);
                     Console.WriteLine("===== GEMINI ERROR END =====");
 
                     matchResult = CreateRuleBasedMatch(
@@ -90,7 +85,7 @@ namespace TalentSyncAI.Api.Services.Implementations
                         candidateSkills);
 
                     matchResult.Recommendation =
-                        $"{matchResult.Recommendation} Gemini AI was unavailable, so fallback skill matching was used.";
+                        $"{matchResult.Recommendation} Gemini AI was unavailable, so fallback skill matching was used. Debug error: {debugError}";
                 }
 
                 results.Add(
@@ -202,7 +197,7 @@ namespace TalentSyncAI.Api.Services.Implementations
             if (jsonStart < 0 || jsonEnd < jsonStart)
             {
                 throw new InvalidOperationException(
-                    "Gemini response did not contain valid JSON.");
+                    $"Gemini response did not contain valid JSON. Raw response: {CreateShortDebugText(responseText)}");
             }
 
             string json =
@@ -210,13 +205,24 @@ namespace TalentSyncAI.Api.Services.Implementations
                     jsonStart,
                     jsonEnd - jsonStart + 1);
 
-            var result =
-                JsonSerializer.Deserialize<AiMatchResult>(
-                    json,
-                    new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
+            AiMatchResult? result;
+
+            try
+            {
+                result =
+                    JsonSerializer.Deserialize<AiMatchResult>(
+                        json,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Gemini JSON parsing failed. JSON: {CreateShortDebugText(json)}",
+                    ex);
+            }
 
             if (result == null)
             {
@@ -338,6 +344,39 @@ namespace TalentSyncAI.Api.Services.Implementations
             }
 
             return "No required skills currently match this job.";
+        }
+
+        private static string CreateDebugErrorMessage(
+            Exception ex)
+        {
+            string message =
+                $"{ex.GetType().Name}: {ex.Message}";
+
+            if (ex.InnerException != null)
+            {
+                message +=
+                    $" | Inner: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}";
+            }
+
+            return CreateShortDebugText(message);
+        }
+
+        private static string CreateShortDebugText(
+            string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return string.Empty;
+            }
+
+            string cleanedText =
+                text.Replace("\r", " ")
+                    .Replace("\n", " ")
+                    .Trim();
+
+            return cleanedText.Length <= 800
+                ? cleanedText
+                : cleanedText.Substring(0, 800);
         }
 
         private class AiMatchResult
