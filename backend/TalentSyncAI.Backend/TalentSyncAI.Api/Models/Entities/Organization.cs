@@ -27,5 +27,7 @@
         public User RecruiterUser { get; set; } = null!;
 
         public ICollection<Job> Jobs { get; set; } = new List<Job>();
+
+        public ICollection<Department> Departments { get; set; } = new List<Department>();
     }
 }

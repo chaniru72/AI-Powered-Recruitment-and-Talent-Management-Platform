@@ -12,6 +12,8 @@ import CandidateJobs from "./pages/candidate/CandidateJobs";
 import CandidateApplications from "./pages/candidate/CandidateApplications";
 import CandidateMessages from "./pages/candidate/CandidateMessages";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
 
 export default function App() {
   return (
@@ -67,6 +69,16 @@ export default function App() {
           />
         </Route>
       </Route>
+
+      <Route
+        path="/admin/dashboard"
+        element={<AdminDashboard />}
+      />
+
+      <Route
+        path="/admin/users"
+        element={<AdminUsers />}
+      />
 
       <Route
         path="*"
