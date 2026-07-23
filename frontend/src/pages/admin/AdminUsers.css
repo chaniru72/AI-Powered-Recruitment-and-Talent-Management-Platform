@@ -2,10 +2,10 @@
   min-height: 100vh;
   padding: 32px;
   background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.12), transparent 30%),
-    #f8fafc;
-  color: #0f172a;
+    radial-gradient(circle at top left, rgba(255, 150, 127, 0.18), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(23, 72, 61, 0.16), transparent 34%),
+    #f4efe6;
+  color: #17352f;
 }
 
 .admin-users-hero,
@@ -13,9 +13,9 @@
 .admin-users-table-card,
 .admin-users-message,
 .admin-users-state {
-  border: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(23, 72, 61, 0.14);
+  background: rgba(255, 252, 245, 0.9);
+  box-shadow: 0 24px 70px rgba(23, 72, 61, 0.09);
   backdrop-filter: blur(18px);
 }
 
@@ -31,15 +31,16 @@
 .admin-users-hero p,
 .admin-users-table-header p {
   margin: 0 0 8px;
-  color: #2563eb;
+  color: #ff8f73;
   font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
+  font-weight: 900;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .admin-users-hero h1 {
   margin: 0;
+  color: #102f28;
   font-size: clamp(2rem, 4vw, 3.2rem);
   line-height: 1;
   letter-spacing: -0.06em;
@@ -49,7 +50,7 @@
   display: block;
   max-width: 760px;
   margin-top: 16px;
-  color: #475569;
+  color: #5d746d;
   line-height: 1.7;
 }
 
@@ -57,8 +58,13 @@
   min-width: 170px;
   padding: 22px;
   border-radius: 24px;
-  background: linear-gradient(135deg, #0f172a, #2563eb);
-  color: white;
+  background: linear-gradient(135deg, #123f36, #1b584b);
+  color: #fffaf2;
+  box-shadow: 0 18px 42px rgba(23, 72, 61, 0.24);
+}
+
+.admin-users-hero-card svg {
+  color: #ff9b80;
 }
 
 .admin-users-hero-card strong,
@@ -72,7 +78,7 @@
 }
 
 .admin-users-hero-card small {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 250, 242, 0.72);
 }
 
 .admin-users-toolbar {
@@ -91,9 +97,14 @@
   gap: 10px;
   min-width: 0;
   padding: 8px 8px 8px 14px;
-  border: 1px solid rgba(148, 163, 184, 0.24);
+  border: 1px solid rgba(23, 72, 61, 0.14);
   border-radius: 18px;
-  background: #f8fafc;
+  background: #fbf8f1;
+}
+
+.admin-users-search svg,
+.admin-users-refresh svg {
+  color: #5d746d;
 }
 
 .admin-users-search input,
@@ -103,12 +114,16 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: #0f172a;
+  color: #17352f;
   font: inherit;
 }
 
 .admin-users-search input {
   min-width: 0;
+}
+
+.admin-users-search input::placeholder {
+  color: #8aa096;
 }
 
 .admin-users-search button,
@@ -118,7 +133,7 @@
   border: 0;
   border-radius: 14px;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 900;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -128,9 +143,16 @@
 .admin-users-search button,
 .admin-users-refresh {
   padding: 12px 16px;
-  background: #2563eb;
-  color: white;
-  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.2);
+  background: #ff967f;
+  color: #17352f;
+  box-shadow: 0 14px 30px rgba(255, 143, 115, 0.24);
+}
+
+.admin-users-search button:hover,
+.admin-users-refresh:hover,
+.admin-users-action:hover,
+.admin-users-role-editor button:hover {
+  transform: translateY(-1px);
 }
 
 .admin-users-refresh {
@@ -142,9 +164,9 @@
 
 .admin-users-toolbar select,
 .admin-users-role-editor {
-  border: 1px solid rgba(148, 163, 184, 0.24);
+  border: 1px solid rgba(23, 72, 61, 0.14);
   border-radius: 16px;
-  background: #f8fafc;
+  background: #fbf8f1;
 }
 
 .admin-users-toolbar select {
@@ -160,17 +182,19 @@
 }
 
 .admin-users-message.success {
-  color: #166534;
-  border-color: rgba(34, 197, 94, 0.28);
+  color: #146144;
+  border-color: rgba(20, 97, 68, 0.24);
+  background: rgba(224, 244, 233, 0.86);
 }
 
 .admin-users-message.error {
-  color: #b91c1c;
-  border-color: rgba(239, 68, 68, 0.32);
+  color: #a33a28;
+  border-color: rgba(255, 143, 115, 0.45);
+  background: rgba(255, 238, 231, 0.92);
 }
 
 .admin-users-state {
-  color: #475569;
+  color: #5d746d;
 }
 
 .admin-users-table-card {
@@ -189,11 +213,12 @@
 
 .admin-users-table-header h2 {
   margin: 0;
+  color: #17352f;
   font-size: 1.25rem;
 }
 
 .admin-users-table-header svg {
-  color: #2563eb;
+  color: #ff8f73;
 }
 
 .admin-users-table-scroll {
@@ -208,7 +233,7 @@
 
 .admin-users-table th {
   padding: 14px;
-  color: #64748b;
+  color: #6b827a;
   font-size: 0.76rem;
   text-align: left;
   text-transform: uppercase;
@@ -217,8 +242,8 @@
 
 .admin-users-table td {
   padding: 14px;
-  border-top: 1px solid rgba(148, 163, 184, 0.16);
-  color: #475569;
+  border-top: 1px solid rgba(23, 72, 61, 0.1);
+  color: #5d746d;
 }
 
 .admin-users-person {
@@ -233,8 +258,9 @@
   height: 42px;
   place-items: center;
   border-radius: 14px;
-  background: #eff6ff;
-  color: #2563eb;
+  background: #fff0e8;
+  color: #ff7f64;
+  box-shadow: 0 12px 26px rgba(255, 143, 115, 0.14);
 }
 
 .admin-users-person strong,
@@ -243,12 +269,12 @@
 }
 
 .admin-users-person strong {
-  color: #0f172a;
+  color: #17352f;
 }
 
 .admin-users-person small {
   margin-top: 4px;
-  color: #64748b;
+  color: #6b827a;
 }
 
 .admin-users-role,
@@ -259,22 +285,22 @@
   padding: 0 12px;
   border-radius: 999px;
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .admin-users-role {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: #fff0e8;
+  color: #b44932;
 }
 
 .admin-users-status.is-active {
-  background: #dcfce7;
-  color: #166534;
+  background: #e0f4e9;
+  color: #146144;
 }
 
 .admin-users-status.is-inactive {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #ffe6df;
+  color: #9a3424;
 }
 
 .admin-users-role-editor {
@@ -290,13 +316,13 @@
 
 .admin-users-role-editor button {
   padding: 9px 12px;
-  background: #0f172a;
-  color: white;
+  background: #123f36;
+  color: #fffaf2;
 }
 
 .admin-users-role-editor button:disabled {
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.42;
 }
 
 .admin-users-action {
@@ -304,19 +330,19 @@
 }
 
 .admin-users-action.primary {
-  background: #2563eb;
-  color: white;
+  background: #123f36;
+  color: #fffaf2;
 }
 
 .admin-users-action.danger {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #ffe6df;
+  color: #9a3424;
 }
 
 .admin-users-empty {
   padding: 28px !important;
   text-align: center;
-  color: #64748b;
+  color: #6b827a;
 }
 
 @media (max-width: 1100px) {
