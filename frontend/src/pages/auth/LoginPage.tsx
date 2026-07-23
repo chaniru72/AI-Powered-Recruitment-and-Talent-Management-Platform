@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import { login } from "../../services/authService";
+import { login, register } from "../../services/authService";
 import "./LoginPage.css";
 
 type Mode = "signin" | "signup";
@@ -23,6 +23,11 @@ type FormErrors = {
   email?: string;
   password?: string;
   confirmPassword?: string;
+};
+
+type RegistrationErrorResponse = {
+  message?: string;
+  errors?: Record<string, string[]>;
 };
 
 export default function LoginPage() {
@@ -72,6 +77,12 @@ export default function LoginPage() {
       newErrors.password = "Password is required.";
     } else if (password.length < 8) {
       newErrors.password = "Use at least 8 characters.";
+    } else if (mode === "signup" && !/[A-Z]/.test(password)) {
+      newErrors.password = "Include at least one uppercase letter.";
+    } else if (mode === "signup" && !/[a-z]/.test(password)) {
+      newErrors.password = "Include at least one lowercase letter.";
+    } else if (mode === "signup" && !/\d/.test(password)) {
+      newErrors.password = "Include at least one number.";
     }
 
     if (mode === "signup") {
@@ -92,12 +103,51 @@ export default function LoginPage() {
     setLoading(true);
 
     if (mode === "signup") {
-      window.setTimeout(() => {
+      try {
+        const response = await register({
+          fullName: name.trim(),
+          email: email.trim(),
+          password,
+          role: "Candidate",
+        });
+
+        changeMode("signin");
+        setEmail(email.trim());
         setMessage(
-          "Demo account created successfully. Registration API will be connected later.",
+          `${response.message || "Registration successful."} Please sign in using your new account.`,
         );
+      } catch (error) {
+        if (axios.isAxiosError<RegistrationErrorResponse>(error)) {
+          const responseData = error.response?.data;
+
+          if (error.response?.status === 409) {
+            setMessage(
+              responseData?.message ??
+                "An account with this email already exists.",
+            );
+          } else if (error.response?.status === 400) {
+            const validationMessage = Object.values(
+              responseData?.errors ?? {},
+            )
+              .flat()
+              .find((item) => item.trim().length > 0);
+
+            setMessage(
+              validationMessage ??
+                "Registration failed. Please check your details and try again.",
+            );
+          } else {
+            setMessage(
+              responseData?.message ??
+                "Registration failed. Please try again.",
+            );
+          }
+        } else {
+          setMessage("Registration failed. Please try again.");
+        }
+      } finally {
         setLoading(false);
-      }, 800);
+      }
 
       return;
     }
