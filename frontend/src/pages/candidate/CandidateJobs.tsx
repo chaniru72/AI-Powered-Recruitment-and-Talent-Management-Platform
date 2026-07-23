@@ -1,5 +1,5 @@
 import "./CandidateJobs.css";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bookmark,
   BriefcaseBusiness,
@@ -9,6 +9,8 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
+import { applyForJob } from "../../services/applicationService";
+import { getJobs, type JobResponse } from "../../services/jobService";
 
 type Job = {
   id: number;
@@ -19,81 +21,75 @@ type Job = {
   workMode: string;
   salary: string;
   posted: string;
-  match: number;
+  match: string;
   skills: string[];
 };
 
-const jobs: Job[] = [
-  {
-    id: 1,
-    title: "Frontend Developer",
-    company: "Nova Technologies",
-    location: "Colombo",
-    type: "Full-time",
-    workMode: "Hybrid",
-    salary: "LKR 120,000 - 180,000",
-    posted: "2 hours ago",
-    match: 94,
-    skills: ["React", "TypeScript", "Tailwind CSS"],
-  },
-  {
-    id: 2,
-    title: "Junior Software Engineer",
-    company: "CloudCore Solutions",
-    location: "Remote",
-    type: "Full-time",
-    workMode: "Remote",
-    salary: "LKR 100,000 - 150,000",
-    posted: "1 day ago",
-    match: 89,
-    skills: ["C#", "ASP.NET Core", "SQL"],
-  },
-  {
-    id: 3,
-    title: "UI/UX Developer Intern",
-    company: "PixelCraft Labs",
-    location: "Colombo",
-    type: "Internship",
-    workMode: "On-site",
-    salary: "LKR 35,000 - 50,000",
-    posted: "2 days ago",
-    match: 84,
-    skills: ["Figma", "HTML", "CSS"],
-  },
-  {
-    id: 4,
-    title: "React Developer",
-    company: "TechVision Lanka",
-    location: "Kandy",
-    type: "Full-time",
-    workMode: "Hybrid",
-    salary: "LKR 130,000 - 190,000",
-    posted: "3 days ago",
-    match: 81,
-    skills: ["React", "JavaScript", "REST APIs"],
-  },
-  {
-    id: 5,
-    title: "Quality Assurance Intern",
-    company: "NextWave Systems",
-    location: "Gampaha",
-    type: "Internship",
-    workMode: "On-site",
-    salary: "LKR 30,000 - 45,000",
-    posted: "4 days ago",
-    match: 76,
-    skills: ["Manual Testing", "Postman", "Jira"],
-  },
-];
-
 export default function CandidateJobs() {
+  const [jobs, setJobs] = useState<JobResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [location, setLocation] = useState("All locations");
   const [jobType, setJobType] = useState("All types");
   const [savedJobs, setSavedJobs] = useState<number[]>([]);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [isSubmittingApplication, setIsSubmittingApplication] =
+    useState(false);
+  const [applicationMessage, setApplicationMessage] = useState("");
+  const [appliedJobIds, setAppliedJobIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadJobs = async () => {
+      try {
+        const jobList = await getJobs();
+
+        if (isActive) {
+          setJobs(jobList);
+        }
+      } catch {
+        if (isActive) {
+          setError(true);
+        }
+      } finally {
+        if (isActive) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void loadJobs();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const mappedJobs = useMemo<Job[]>(
+    () =>
+      jobs.map((job) => ({
+        id: job.id,
+        title: job.title,
+        company: job.organizationName,
+        location: job.location,
+        type: job.employmentType,
+        workMode: job.location.toLowerCase() === "remote" ? "Remote" : "On-site / Hybrid",
+        salary: job.salaryRange,
+        posted: "Recently posted",
+        match: "AI match pending",
+        skills: job.requiredSkills
+          .split(",")
+          .map((skill) => skill.trim())
+          .filter(Boolean),
+      })),
+    [jobs]
+  );
 
   const filteredJobs = useMemo(() => {
-    return jobs.filter((job) => {
+    return mappedJobs.filter((job) => {
       const searchValue = searchTerm.toLowerCase();
 
       const matchesSearch =
@@ -113,7 +109,7 @@ export default function CandidateJobs() {
 
       return matchesSearch && matchesLocation && matchesType;
     });
-  }, [searchTerm, location, jobType]);
+  }, [mappedJobs, searchTerm, location, jobType]);
 
   const toggleSavedJob = (jobId: number) => {
     setSavedJobs((current) =>
@@ -121,6 +117,84 @@ export default function CandidateJobs() {
         ? current.filter((id) => id !== jobId)
         : [...current, jobId]
     );
+  };
+
+  const getApplicationErrorMessage = (submitError: unknown) => {
+    if (
+      typeof submitError === "object" &&
+      submitError !== null &&
+      "response" in submitError
+    ) {
+      const response = submitError.response;
+
+      if (
+        typeof response === "object" &&
+        response !== null &&
+        "data" in response
+      ) {
+        const data = response.data;
+
+        if (typeof data === "string") {
+          return data;
+        }
+
+        if (typeof data === "object" && data !== null) {
+          if ("message" in data && typeof data.message === "string") {
+            return data.message;
+          }
+
+          if ("error" in data && typeof data.error === "string") {
+            return data.error;
+          }
+
+          if ("title" in data && typeof data.title === "string") {
+            return data.title;
+          }
+        }
+      }
+    }
+
+    return "Unable to submit application. Please try again.";
+  };
+
+  const openApplySection = (job: Job) => {
+    setSelectedJob(job);
+    setCoverLetter("");
+    setApplicationMessage("");
+  };
+
+  const closeApplySection = () => {
+    if (isSubmittingApplication) {
+      return;
+    }
+
+    setSelectedJob(null);
+    setCoverLetter("");
+  };
+
+  const submitApplication = async () => {
+    if (!selectedJob || isSubmittingApplication) {
+      return;
+    }
+
+    setIsSubmittingApplication(true);
+    setApplicationMessage("");
+
+    try {
+      await applyForJob(selectedJob.id, coverLetter);
+      setAppliedJobIds((current) =>
+        current.includes(selectedJob.id)
+          ? current
+          : [...current, selectedJob.id]
+      );
+      setApplicationMessage("Application submitted successfully.");
+      setSelectedJob(null);
+      setCoverLetter("");
+    } catch (submitError) {
+      setApplicationMessage(getApplicationErrorMessage(submitError));
+    } finally {
+      setIsSubmittingApplication(false);
+    }
   };
 
   const clearFilters = () => {
@@ -215,6 +289,72 @@ export default function CandidateJobs() {
 
       <section className="grid gap-6 xl:grid-cols-[1fr_300px]">
         <div className="space-y-4">
+          {applicationMessage ? (
+            <div
+              className="rounded-2xl border border-slate-200
+                bg-white p-4 text-sm font-semibold text-slate-700
+                shadow-sm"
+            >
+              {applicationMessage}
+            </div>
+          ) : null}
+
+          {selectedJob ? (
+            <section
+              className="rounded-2xl border border-blue-200
+                bg-white p-5 shadow-sm"
+            >
+              <h2 className="text-lg font-bold text-slate-900">
+                Apply for {selectedJob.title}
+              </h2>
+
+              <label className="mt-4 block text-sm font-semibold text-slate-700">
+                Cover letter
+                <textarea
+                  value={coverLetter}
+                  onChange={(event) =>
+                    setCoverLetter(event.target.value)
+                  }
+                  rows={5}
+                  className="mt-2 w-full rounded-xl border
+                    border-slate-200 bg-slate-50 px-4 py-3
+                    text-sm text-slate-700 outline-none
+                    focus:border-blue-500"
+                  placeholder="Optional"
+                  disabled={isSubmittingApplication}
+                />
+              </label>
+
+              <div className="mt-4 flex flex-wrap justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={closeApplySection}
+                  disabled={isSubmittingApplication}
+                  className="rounded-xl border border-slate-200 px-4
+                    py-2 text-sm font-bold text-slate-600 transition
+                    hover:bg-slate-100 disabled:cursor-not-allowed
+                    disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={submitApplication}
+                  disabled={isSubmittingApplication}
+                  className="rounded-xl bg-blue-600 px-4 py-2
+                    text-sm font-bold text-white shadow-md
+                    shadow-blue-200 transition hover:bg-blue-700
+                    disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isSubmittingApplication
+                    ? "Submitting..."
+                    : "Submit Application"}
+                </button>
+              </div>
+            </section>
+          ) : null}
+
           <div className="flex items-center justify-between">
             <p className="text-sm text-slate-500">
               <strong className="text-slate-900">
@@ -234,7 +374,19 @@ export default function CandidateJobs() {
             </select>
           </div>
 
-          {filteredJobs.length > 0 ? (
+          {isLoading ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-sm text-slate-500">
+              Loading jobs...
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-sm text-slate-500">
+              Unable to load jobs. Please try again.
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-sm text-slate-500">
+              No jobs available at the moment.
+            </div>
+          ) : filteredJobs.length > 0 ? (
             filteredJobs.map((job) => (
               <article
                 key={job.id}
@@ -331,7 +483,7 @@ export default function CandidateJobs() {
                           text-xs font-bold text-emerald-700"
                       >
                         <Sparkles size={14} />
-                        {job.match}% AI match
+                        {job.match}
                       </span>
 
                       <div className="flex gap-2">
@@ -346,12 +498,17 @@ export default function CandidateJobs() {
 
                         <button
                           type="button"
+                          onClick={() => openApplySection(job)}
+                          disabled={appliedJobIds.includes(job.id)}
                           className="rounded-xl bg-blue-600 px-4
                             py-2 text-sm font-bold text-white
                             shadow-md shadow-blue-200 transition
-                            hover:bg-blue-700"
+                            hover:bg-blue-700 disabled:cursor-not-allowed
+                            disabled:bg-slate-300 disabled:shadow-none"
                         >
-                          Apply now
+                          {appliedJobIds.includes(job.id)
+                            ? "Applied"
+                            : "Apply now"}
                         </button>
                       </div>
                     </div>
