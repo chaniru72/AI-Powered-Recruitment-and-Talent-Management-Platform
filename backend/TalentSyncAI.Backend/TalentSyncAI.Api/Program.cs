@@ -42,6 +42,17 @@ builder.Services.AddCors(options =>
         });
 });
 
+// -------------------------------------------------
+// Gemini AI configuration
+// -------------------------------------------------
+
+builder.Services.Configure<GeminiSettings>(
+    builder.Configuration.GetSection("Gemini"));
+
+builder.Services.AddHttpClient<
+    IGeminiClient,
+    GeminiClient>();
+
 // Read the SQL Server connection string.
 string connectionString =
     builder.Configuration.GetConnectionString(
@@ -83,7 +94,7 @@ builder.Services.AddScoped<
     JobApplicationRepository>();
 
 builder.Services.AddScoped<
-    IInterviewRepository, 
+    IInterviewRepository,
     InterviewRepository>();
 
 builder.Services.AddScoped<
@@ -93,7 +104,6 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IAdminRepository,
     AdminRepository>();
-
 
 // -------------------------------------------------
 // Password hashing
@@ -140,15 +150,15 @@ builder.Services.AddScoped<
     JobApplicationService>();
 
 builder.Services.AddScoped<
-    IAnalyticsService, 
+    IAnalyticsService,
     AnalyticsService>();
 
 builder.Services.AddScoped<
-    IAiMatchingService, 
+    IAiMatchingService,
     AiMatchingService>();
 
 builder.Services.AddScoped<
-    IInterviewService, 
+    IInterviewService,
     InterviewService>();
 
 builder.Services.AddScoped<
@@ -230,6 +240,7 @@ var app = builder.Build();
 // -------------------------------------------------
 // Middleware
 // -------------------------------------------------
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
