@@ -192,6 +192,12 @@ switch (role) {
     });
     break;
 
+    case "HiringManager":
+  navigate("/hiring-manager/dashboard", {
+    replace: true,
+  });
+  break;
+
   default:
     localStorage.removeItem("token");
     localStorage.removeItem("user");

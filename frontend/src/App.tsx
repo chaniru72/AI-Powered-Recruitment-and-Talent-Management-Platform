@@ -6,9 +6,11 @@ import {
 
 import CandidateRoute from "./components/routes/CandidateRoute";
 import RecruiterRoute from "./components/routes/RecruiterRoute";
+import HiringManagerRoute from "./components/routes/HiringManagerRoute";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import RecruiterLayout from "./layouts/RecruiterLayout";
+import HiringManagerLayout from "./layouts/HiringManagerLayout";
 
 import LoginPage from "./pages/auth/LoginPage";
 
@@ -26,6 +28,10 @@ import RecruiterApplicants from "./pages/recruiter/RecruiterApplicants";
 import RecruiterInterviews from "./pages/recruiter/RecruiterInterviews";
 import RecruiterMessages from "./pages/recruiter/RecruiterMessages";
 import RecruiterProfile from "./pages/recruiter/RecruiterProfile";
+
+import HiringManagerDashboard from "./pages/hiring-manager/HiringManagerDashboard";
+import HiringManagerCandidates from "./pages/hiring-manager/HiringManagerCandidates";
+import HiringManagerCandidateDetails from "./pages/hiring-manager/HiringManagerCandidateDetails";
 
 export default function App() {
   return (
@@ -128,6 +134,38 @@ export default function App() {
           />
         </Route>
       </Route>
+
+      <Route element={<HiringManagerRoute />}>
+  <Route
+    path="/hiring-manager"
+    element={<HiringManagerLayout />}
+  >
+    <Route
+      index
+      element={
+        <Navigate
+          to="/hiring-manager/dashboard"
+          replace
+        />
+      }
+    />
+
+    <Route
+      path="dashboard"
+      element={<HiringManagerDashboard />}
+    />
+
+    <Route
+      path="candidates"
+      element={<HiringManagerCandidates />}
+    />
+
+    <Route
+      path="candidates/:applicationId"
+      element={<HiringManagerCandidateDetails />}
+    />
+  </Route>
+</Route>
 
       <Route
         path="/admin/dashboard"
