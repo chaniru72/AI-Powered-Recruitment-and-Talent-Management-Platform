@@ -1,5 +1,9 @@
 .admin-page {
+  height: 100vh;
   min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
   padding: 32px;
   background:
     radial-gradient(circle at top left, rgba(255, 150, 127, 0.18), transparent 32%),
