@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useState,
-  type FormEvent,
-} from "react";
-
+import { useEffect, useState, type FormEvent } from "react";
 import {
   RefreshCcw,
   Search,
@@ -56,7 +51,6 @@ export default function AdminUsers() {
     try {
       setLoadState("loading");
       setErrorMessage("");
-      setSuccessMessage("");
 
       const activeValue =
         activeFilter === ""
@@ -158,7 +152,7 @@ export default function AdminUsers() {
   };
 
   return (
-    <main className="admin-users-page">
+    <div className="admin-users-page">
       <section className="admin-users-hero">
         <div>
           <p>Admin User Management</p>
@@ -369,6 +363,6 @@ export default function AdminUsers() {
           </div>
         </section>
       )}
-    </main>
+    </div>
   );
 }

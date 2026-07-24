@@ -1,23 +1,16 @@
 .admin-users-page {
-  height: 100vh;
-  min-height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
   box-sizing: border-box;
-  padding: 32px;
-  background:
-    radial-gradient(circle at top left, rgba(255, 150, 127, 0.18), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(23, 72, 61, 0.16), transparent 34%),
-    #f4efe6;
+  width: 100%;
   color: #17352f;
 }
+
 .admin-users-hero,
 .admin-users-toolbar,
 .admin-users-table-card,
 .admin-users-message,
 .admin-users-state {
   border: 1px solid rgba(23, 72, 61, 0.14);
-  background: rgba(255, 252, 245, 0.9);
+  background: rgba(255, 252, 245, 0.88);
   box-shadow: 0 24px 70px rgba(23, 72, 61, 0.09);
   backdrop-filter: blur(18px);
 }
@@ -61,13 +54,10 @@
   min-width: 170px;
   padding: 22px;
   border-radius: 24px;
-  background: linear-gradient(135deg, #123f36, #1b584b);
+  background:
+    linear-gradient(135deg, rgba(18, 63, 54, 0.98), rgba(27, 88, 75, 0.98));
   color: #fffaf2;
   box-shadow: 0 18px 42px rgba(23, 72, 61, 0.24);
-}
-
-.admin-users-hero-card svg {
-  color: #ff9b80;
 }
 
 .admin-users-hero-card strong,
@@ -100,14 +90,9 @@
   gap: 10px;
   min-width: 0;
   padding: 8px 8px 8px 14px;
-  border: 1px solid rgba(23, 72, 61, 0.14);
+  border: 1px solid rgba(23, 72, 61, 0.12);
   border-radius: 18px;
   background: #fbf8f1;
-}
-
-.admin-users-search svg,
-.admin-users-refresh svg {
-  color: #5d746d;
 }
 
 .admin-users-search input,
@@ -125,10 +110,6 @@
   min-width: 0;
 }
 
-.admin-users-search input::placeholder {
-  color: #8aa096;
-}
-
 .admin-users-search button,
 .admin-users-refresh,
 .admin-users-role-editor button,
@@ -136,7 +117,7 @@
   border: 0;
   border-radius: 14px;
   cursor: pointer;
-  font-weight: 900;
+  font-weight: 800;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -147,13 +128,13 @@
 .admin-users-refresh {
   padding: 12px 16px;
   background: #ff967f;
-  color: #17352f;
-  box-shadow: 0 14px 30px rgba(255, 143, 115, 0.24);
+  color: #123f36;
+  box-shadow: 0 12px 28px rgba(255, 150, 127, 0.2);
 }
 
 .admin-users-search button:hover,
 .admin-users-refresh:hover,
-.admin-users-action:hover,
+.admin-users-action.primary:hover,
 .admin-users-role-editor button:hover {
   transform: translateY(-1px);
 }
@@ -167,7 +148,7 @@
 
 .admin-users-toolbar select,
 .admin-users-role-editor {
-  border: 1px solid rgba(23, 72, 61, 0.14);
+  border: 1px solid rgba(23, 72, 61, 0.12);
   border-radius: 16px;
   background: #fbf8f1;
 }
@@ -185,9 +166,8 @@
 }
 
 .admin-users-message.success {
-  color: #146144;
-  border-color: rgba(20, 97, 68, 0.24);
-  background: rgba(224, 244, 233, 0.86);
+  color: #166534;
+  border-color: rgba(34, 197, 94, 0.28);
 }
 
 .admin-users-message.error {
@@ -263,7 +243,6 @@
   border-radius: 14px;
   background: #fff0e8;
   color: #ff7f64;
-  box-shadow: 0 12px 26px rgba(255, 143, 115, 0.14);
 }
 
 .admin-users-person strong,
@@ -272,7 +251,7 @@
 }
 
 .admin-users-person strong {
-  color: #17352f;
+  color: #123f36;
 }
 
 .admin-users-person small {
@@ -288,22 +267,22 @@
   padding: 0 12px;
   border-radius: 999px;
   font-size: 0.82rem;
-  font-weight: 900;
+  font-weight: 800;
 }
 
 .admin-users-role {
   background: #fff0e8;
-  color: #b44932;
+  color: #b84a36;
 }
 
 .admin-users-status.is-active {
-  background: #e0f4e9;
-  color: #146144;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .admin-users-status.is-inactive {
-  background: #ffe6df;
-  color: #9a3424;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .admin-users-role-editor {
@@ -325,7 +304,7 @@
 
 .admin-users-role-editor button:disabled {
   cursor: not-allowed;
-  opacity: 0.42;
+  opacity: 0.45;
 }
 
 .admin-users-action {
@@ -333,13 +312,13 @@
 }
 
 .admin-users-action.primary {
-  background: #123f36;
-  color: #fffaf2;
+  background: #ff967f;
+  color: #123f36;
 }
 
 .admin-users-action.danger {
-  background: #ffe6df;
-  color: #9a3424;
+  background: #fee2e2;
+  color: #991b1b;
 }
 
 .admin-users-empty {
@@ -359,13 +338,11 @@
 }
 
 @media (max-width: 700px) {
-  .admin-users-page {
-    padding: 18px;
-  }
-
   .admin-users-hero {
     align-items: flex-start;
     flex-direction: column;
+    padding: 24px;
+    border-radius: 26px;
   }
 
   .admin-users-toolbar {
@@ -374,5 +351,10 @@
 
   .admin-users-search {
     grid-column: auto;
+  }
+
+  .admin-users-table-card {
+    padding: 20px;
+    border-radius: 22px;
   }
 }
