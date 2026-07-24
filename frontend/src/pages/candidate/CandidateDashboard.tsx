@@ -1,6 +1,12 @@
-import { type CSSProperties } from "react";
-
 import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+} from "react";
+import {
+  AlertCircle,
   ArrowRight,
   ArrowUpRight,
   Award,
@@ -10,13 +16,24 @@ import {
   Clock3,
   Eye,
   FileText,
+  LoaderCircle,
   MapPin,
+  RefreshCw,
   Sparkles,
   Target,
   TrendingUp,
 } from "lucide-react";
-
 import { useNavigate } from "react-router-dom";
+
+import {
+  getCandidateDashboardData,
+  type CandidateDashboardData,
+} from "../../services/candidateDashboardService";
+
+import type {
+  ApplicationStatus,
+  CandidateApplication,
+} from "../../types/application";
 
 import "./CandidateDashboard.css";
 import "./CandidateActivity.css";
@@ -27,123 +44,7 @@ type StoredUser = {
   firstName?: string;
 };
 
-const statistics = [
-  {
-    title: "Applications",
-    value: 12,
-    change: "+3 this week",
-    icon: FileText,
-    tone: "coral",
-  },
-  {
-    title: "Interviews",
-    value: 4,
-    change: "2 upcoming",
-    icon: CalendarDays,
-    tone: "purple",
-  },
-  {
-    title: "Shortlisted",
-    value: 6,
-    change: "50% success rate",
-    icon: CheckCircle2,
-    tone: "sage",
-  },
-  {
-    title: "Profile Views",
-    value: 48,
-    change: "+18% this month",
-    icon: TrendingUp,
-    tone: "peach",
-  },
-];
-
-const journeyStages = [
-  {
-    title: "Applied",
-    value: 12,
-    description: "Total applications",
-    icon: FileText,
-    tone: "coral",
-  },
-  {
-    title: "Under Review",
-    value: 8,
-    description: "Being reviewed",
-    icon: Eye,
-    tone: "peach",
-  },
-  {
-    title: "Interview",
-    value: 4,
-    description: "Interview stage",
-    icon: CalendarDays,
-    tone: "purple",
-  },
-  {
-    title: "Shortlisted",
-    value: 6,
-    description: "Successful progress",
-    icon: Award,
-    tone: "sage",
-  },
-];
-
-const recommendedJobs = [
-  {
-    id: 1,
-    title: "Frontend Developer",
-    company: "Nova Technologies",
-    location: "Colombo, Sri Lanka",
-    type: "Full-time",
-    match: 94,
-  },
-  {
-    id: 2,
-    title: "Junior Software Engineer",
-    company: "CloudCore Solutions",
-    location: "Remote",
-    type: "Full-time",
-    match: 89,
-  },
-  {
-    id: 3,
-    title: "UI/UX Developer Intern",
-    company: "PixelCraft Labs",
-    location: "Colombo, Sri Lanka",
-    type: "Internship",
-    match: 84,
-  },
-];
-
-const recentApplications = [
-  {
-    id: 1,
-    job: "React Developer",
-    company: "TechVision",
-    date: "18 Jul 2026",
-    status: "Shortlisted",
-    tone: "shortlisted",
-  },
-  {
-    id: 2,
-    job: "Software Engineer Intern",
-    company: "CodeLabs",
-    date: "16 Jul 2026",
-    status: "Under review",
-    tone: "review",
-  },
-  {
-    id: 3,
-    job: "Junior Web Developer",
-    company: "NextWave",
-    date: "13 Jul 2026",
-    status: "Applied",
-    tone: "applied",
-  },
-];
-
-function getCandidateName() {
+function getStoredCandidateName(): string {
   try {
     const storedUser = localStorage.getItem("user");
 
@@ -159,23 +60,365 @@ function getCandidateName() {
       user.firstName ??
       "Candidate";
 
-    return name.trim().split(/\s+/)[0];
+    return name.trim().split(/\s+/)[0] || "Candidate";
   } catch {
     return "Candidate";
   }
 }
 
+function hasText(value?: string | null): boolean {
+  return Boolean(value?.trim());
+}
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Date unavailable";
+  }
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+function formatApplicationStatus(
+  status: ApplicationStatus,
+): string {
+  switch (status) {
+    case "UnderReview":
+      return "Under review";
+
+    case "Shortlisted":
+      return "Shortlisted";
+
+    case "Rejected":
+      return "Rejected";
+
+    case "Hired":
+      return "Hired";
+
+    case "Withdrawn":
+      return "Withdrawn";
+
+    default:
+      return "Applied";
+  }
+}
+
+function getApplicationTone(
+  status: ApplicationStatus,
+): "applied" | "review" | "shortlisted" {
+  switch (status) {
+    case "Shortlisted":
+    case "Hired":
+      return "shortlisted";
+
+    case "UnderReview":
+    case "Rejected":
+    case "Withdrawn":
+      return "review";
+
+    default:
+      return "applied";
+  }
+}
+
+function countApplicationsByStatus(
+  applications: CandidateApplication[],
+  status: ApplicationStatus,
+): number {
+  return applications.filter(
+    (application) => application.status === status,
+  ).length;
+}
+
 export default function CandidateDashboard() {
   const navigate = useNavigate();
 
-  const candidateName = getCandidateName();
-  const profileCompletion = 82;
-  const featuredJob = recommendedJobs[0];
-  const additionalJobs = recommendedJobs.slice(1);
+  const [dashboardData, setDashboardData] =
+    useState<CandidateDashboardData | null>(null);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const loadDashboard = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setErrorMessage("");
+
+      const data = await getCandidateDashboardData();
+
+      setDashboardData(data);
+    } catch {
+      setDashboardData(null);
+      setErrorMessage(
+        "We could not load your dashboard information. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadDashboard();
+  }, [loadDashboard]);
+
+  const profile = dashboardData?.profile ?? null;
+  const applications = dashboardData?.applications ?? [];
+  const jobs = dashboardData?.jobs ?? [];
+
+  const candidateName = useMemo(() => {
+    const profileName = profile?.fullName?.trim();
+
+    if (profileName) {
+      return profileName.split(/\s+/)[0];
+    }
+
+    return getStoredCandidateName();
+  }, [profile]);
+
+  const profileChecklist = useMemo(() => {
+    const personalDetailsComplete =
+      hasText(profile?.phone) &&
+      hasText(profile?.location);
+
+    const skillsEducationComplete =
+      hasText(profile?.skills) &&
+      hasText(profile?.education);
+
+    const experienceComplete = hasText(
+      profile?.experienceSummary,
+    );
+
+    const resumeComplete = hasText(profile?.resumeUrl);
+
+    return [
+      {
+        title: "Personal details",
+        complete: personalDetailsComplete,
+      },
+      {
+        title: "Skills and education",
+        complete: skillsEducationComplete,
+      },
+      {
+        title: "Work experience",
+        complete: experienceComplete,
+      },
+      {
+        title: "Résumé",
+        complete: resumeComplete,
+      },
+    ];
+  }, [profile]);
+
+  const profileCompletion = useMemo(() => {
+    if (!profile) {
+      return 0;
+    }
+
+    const completedItems = profileChecklist.filter(
+      (item) => item.complete,
+    ).length;
+
+    return Math.round(
+      (completedItems / profileChecklist.length) * 100,
+    );
+  }, [profile, profileChecklist]);
+
+  const nextProfileAction = useMemo(() => {
+    if (!profile) {
+      return "Create your candidate profile to improve your opportunities.";
+    }
+
+    const firstIncompleteItem = profileChecklist.find(
+      (item) => !item.complete,
+    );
+
+    if (!firstIncompleteItem) {
+      return "Your main profile sections are complete.";
+    }
+
+    return `Complete your ${firstIncompleteItem.title.toLowerCase()} section.`;
+  }, [profile, profileChecklist]);
+
+  const openJobs = useMemo(() => {
+    return [...jobs]
+      .filter((job) => job.status === "Open")
+      .sort((firstJob, secondJob) => {
+        const firstDate = new Date(
+          firstJob.createdAt,
+        ).getTime();
+
+        const secondDate = new Date(
+          secondJob.createdAt,
+        ).getTime();
+
+        return secondDate - firstDate;
+      });
+  }, [jobs]);
+
+  const featuredJob = openJobs[0] ?? null;
+  const additionalJobs = openJobs.slice(1, 3);
+
+  const recentApplications = useMemo(() => {
+    return [...applications]
+      .sort((firstApplication, secondApplication) => {
+        const firstDate = new Date(
+          firstApplication.appliedAt,
+        ).getTime();
+
+        const secondDate = new Date(
+          secondApplication.appliedAt,
+        ).getTime();
+
+        return secondDate - firstDate;
+      })
+      .slice(0, 3);
+  }, [applications]);
+
+  const underReviewCount = countApplicationsByStatus(
+    applications,
+    "UnderReview",
+  );
+
+  const shortlistedCount = countApplicationsByStatus(
+    applications,
+    "Shortlisted",
+  );
+
+  const hiredCount = countApplicationsByStatus(
+    applications,
+    "Hired",
+  );
+
+  const statistics = [
+    {
+      title: "Applications",
+      value: applications.length,
+      change: "Submitted applications",
+      icon: FileText,
+      tone: "coral",
+    },
+    {
+      title: "Under Review",
+      value: underReviewCount,
+      change: "Currently being reviewed",
+      icon: Eye,
+      tone: "purple",
+    },
+    {
+      title: "Shortlisted",
+      value: shortlistedCount,
+      change: "Moved forward",
+      icon: CheckCircle2,
+      tone: "sage",
+    },
+    {
+      title: "Open Jobs",
+      value: openJobs.length,
+      change: "Available opportunities",
+      icon: TrendingUp,
+      tone: "peach",
+    },
+  ];
+
+  const journeyStages = [
+    {
+      title: "Submitted",
+      value: applications.length,
+      description: "Total applications",
+      icon: FileText,
+      tone: "coral",
+    },
+    {
+      title: "Under Review",
+      value: underReviewCount,
+      description: "Being reviewed",
+      icon: Eye,
+      tone: "peach",
+    },
+    {
+      title: "Shortlisted",
+      value: shortlistedCount,
+      description: "Moved forward",
+      icon: CalendarDays,
+      tone: "purple",
+    },
+    {
+      title: "Hired",
+      value: hiredCount,
+      description: "Successful outcomes",
+      icon: Award,
+      tone: "sage",
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="clear-dashboard">
+        <section className="clear-lifecycle">
+          <div
+            style={{
+              minHeight: "320px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+              gap: "12px",
+            }}
+          >
+            <LoaderCircle
+              size={36}
+              className="animate-spin"
+            />
+
+            <p>Loading your dashboard...</p>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (errorMessage || !dashboardData) {
+    return (
+      <div className="clear-dashboard">
+        <section className="clear-lifecycle">
+          <div
+            style={{
+              minHeight: "320px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+              gap: "12px",
+              textAlign: "center",
+            }}
+          >
+            <AlertCircle size={38} />
+
+            <h2>Dashboard unavailable</h2>
+
+            <p>{errorMessage}</p>
+
+            <button
+              type="button"
+              onClick={() => void loadDashboard()}
+            >
+              <RefreshCw size={16} />
+              Try again
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="clear-dashboard">
-      {/* Compact welcome and profile focus */}
       <section className="clear-intro">
         <div className="clear-intro-decoration clear-decoration-one" />
         <div className="clear-intro-decoration clear-decoration-two" />
@@ -183,7 +426,7 @@ export default function CandidateDashboard() {
         <div className="clear-intro-copy">
           <span className="clear-eyebrow">
             <Sparkles size={15} />
-            AI-powered candidate command centre
+            Candidate command centre
           </span>
 
           <h1>
@@ -192,8 +435,8 @@ export default function CandidateDashboard() {
           </h1>
 
           <p>
-            Review your progress, discover your strongest job matches,
-            and continue building a profile recruiters will notice.
+            Review your real application progress, discover
+            available jobs, and continue building your profile.
           </p>
 
           <div className="clear-intro-actions">
@@ -220,7 +463,12 @@ export default function CandidateDashboard() {
           <header>
             <div>
               <span>Profile readiness</span>
-              <h2>Almost recruiter-ready</h2>
+
+              <h2>
+                {profileCompletion === 100
+                  ? "Profile complete"
+                  : "Keep building your profile"}
+              </h2>
             </div>
 
             <Target size={22} />
@@ -244,13 +492,11 @@ export default function CandidateDashboard() {
             <div className="clear-focus-copy">
               <span>Next best action</span>
 
-              <p>
-                Add your work experience to improve your job matches.
-              </p>
+              <p>{nextProfileAction}</p>
 
               <div>
-                <small>Best match</small>
-                <strong>94%</strong>
+                <small>Open roles</small>
+                <strong>{openJobs.length}</strong>
               </div>
             </div>
           </div>
@@ -259,20 +505,48 @@ export default function CandidateDashboard() {
             type="button"
             onClick={() => navigate("/candidate/profile")}
           >
-            Complete profile
+            Update profile
             <ArrowUpRight size={16} />
           </button>
         </aside>
       </section>
 
-      {/* Recruitment lifecycle */}
+      {dashboardData.unavailableSections.length > 0 && (
+        <section className="clear-lifecycle">
+          <header className="clear-section-header">
+            <div>
+              <span>Live data notice</span>
+
+              <h2>Some information is temporarily unavailable</h2>
+
+              <p>
+                Unavailable sections:{" "}
+                {dashboardData.unavailableSections.join(", ")}.
+                The available dashboard data is still shown.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => void loadDashboard()}
+            >
+              Retry
+              <RefreshCw size={15} />
+            </button>
+          </header>
+        </section>
+      )}
+
       <section className="clear-lifecycle">
         <header className="clear-section-header">
           <div>
             <span>Candidate journey</span>
+
             <h2>Your recruitment lifecycle</h2>
+
             <p>
-              Follow every opportunity from application to shortlist.
+              Follow your actual applications from submission
+              to final outcomes.
             </p>
           </div>
 
@@ -320,62 +594,91 @@ export default function CandidateDashboard() {
         </div>
       </section>
 
-      {/* Asymmetric workspace */}
       <div className="clear-bento">
-        {/* Featured opportunity */}
         <section className="clear-featured-job">
-          <div className="clear-featured-top">
-            <span className="clear-featured-label">
-              <Sparkles size={14} />
-              Featured opportunity
-            </span>
+          {featuredJob ? (
+            <>
+              <div className="clear-featured-top">
+                <span className="clear-featured-label">
+                  <Sparkles size={14} />
+                  Latest open opportunity
+                </span>
 
-            <div
-              className="clear-job-match"
-              style={
-                {
-                  "--match-angle": `${featuredJob.match * 3.6}deg`,
-                } as CSSProperties
-              }
-            >
-              <span>{featuredJob.match}%</span>
-            </div>
-          </div>
+                <div className="clear-job-match">
+                  <span>{featuredJob.status}</span>
+                </div>
+              </div>
 
-          <div className="clear-featured-company">
-            <span>
-              <BriefcaseBusiness size={25} />
-            </span>
+              <div className="clear-featured-company">
+                <span>
+                  <BriefcaseBusiness size={25} />
+                </span>
 
-            <div>
-              <small>Best match for your profile</small>
-              <h2>{featuredJob.title}</h2>
-              <p>{featuredJob.company}</p>
-            </div>
-          </div>
+                <div>
+                  <small>Recently published role</small>
+                  <h2>{featuredJob.title}</h2>
+                  <p>{featuredJob.organizationName}</p>
+                </div>
+              </div>
 
-          <div className="clear-featured-details">
-            <span>
-              <MapPin size={15} />
-              {featuredJob.location}
-            </span>
+              <div className="clear-featured-details">
+                <span>
+                  <MapPin size={15} />
+                  {featuredJob.location ||
+                    "Location not specified"}
+                </span>
 
-            <span>
-              <Clock3 size={15} />
-              {featuredJob.type}
-            </span>
-          </div>
+                <span>
+                  <Clock3 size={15} />
+                  {featuredJob.employmentType ||
+                    "Employment type not specified"}
+                </span>
+              </div>
 
-          <button
-            type="button"
-            onClick={() => navigate("/candidate/jobs")}
-          >
-            View opportunity
-            <ArrowUpRight size={17} />
-          </button>
+              <button
+                type="button"
+                onClick={() => navigate("/candidate/jobs")}
+              >
+                View opportunity
+                <ArrowUpRight size={17} />
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="clear-featured-top">
+                <span className="clear-featured-label">
+                  <BriefcaseBusiness size={14} />
+                  Open opportunities
+                </span>
+              </div>
+
+              <div className="clear-featured-company">
+                <span>
+                  <BriefcaseBusiness size={25} />
+                </span>
+
+                <div>
+                  <small>Live job information</small>
+                  <h2>No open jobs available</h2>
+
+                  <p>
+                    New opportunities will appear when recruiters
+                    publish them.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate("/candidate/jobs")}
+              >
+                Browse jobs
+                <ArrowUpRight size={17} />
+              </button>
+            </>
+          )}
         </section>
 
-        {/* Connected statistics */}
         <section className="clear-performance">
           <header>
             <div>
@@ -411,11 +714,10 @@ export default function CandidateDashboard() {
           </div>
         </section>
 
-        {/* Additional opportunities */}
         <section className="clear-opportunities">
           <header className="clear-section-header">
             <div>
-              <span>Recommended</span>
+              <span>Available now</span>
               <h2>More opportunities</h2>
             </div>
 
@@ -429,102 +731,114 @@ export default function CandidateDashboard() {
           </header>
 
           <div className="clear-opportunity-list">
-            {additionalJobs.map((job) => (
-              <article
-                key={job.id}
-                className="clear-opportunity-item"
-              >
-                <span className="clear-opportunity-icon">
-                  <BriefcaseBusiness size={20} />
-                </span>
+            {additionalJobs.length === 0 ? (
+              <p>
+                No additional open opportunities are currently
+                available.
+              </p>
+            ) : (
+              additionalJobs.map((job) => (
+                <article
+                  key={job.id}
+                  className="clear-opportunity-item"
+                >
+                  <span className="clear-opportunity-icon">
+                    <BriefcaseBusiness size={20} />
+                  </span>
 
-                <div className="clear-opportunity-copy">
-                  <h3>{job.title}</h3>
-                  <p>{job.company}</p>
+                  <div className="clear-opportunity-copy">
+                    <h3>{job.title}</h3>
+                    <p>{job.organizationName}</p>
 
-                  <div>
-                    <span>
-                      <MapPin size={13} />
-                      {job.location}
-                    </span>
+                    <div>
+                      <span>
+                        <MapPin size={13} />
+                        {job.location ||
+                          "Location not specified"}
+                      </span>
 
-                    <span>
-                      <Clock3 size={13} />
-                      {job.type}
-                    </span>
+                      <span>
+                        <Clock3 size={13} />
+                        {job.employmentType ||
+                          "Type not specified"}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="clear-opportunity-action">
-                  <strong>{job.match}% match</strong>
+                  <div className="clear-opportunity-action">
+                    <strong>{job.status}</strong>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      navigate("/candidate/jobs")
-                    }
-                  >
-                    <ArrowUpRight size={16} />
-                  </button>
-                </div>
-              </article>
-            ))}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate("/candidate/jobs")
+                      }
+                    >
+                      <ArrowUpRight size={16} />
+                    </button>
+                  </div>
+                </article>
+              ))
+            )}
           </div>
         </section>
 
-        {/* Profile checklist */}
         <section className="clear-profile-checklist">
           <header>
             <span>Profile strength</span>
             <h2>Build a stronger profile</h2>
-            <p>Complete every step to rank higher.</p>
+
+            <p>
+              Complete your actual profile information to help
+              recruiters understand your background.
+            </p>
           </header>
 
           <div className="clear-checklist">
-            <div className="is-complete">
-              <span>
-                <CheckCircle2 size={18} />
-                Personal details
-              </span>
-
-              <strong>Complete</strong>
-            </div>
-
-            <div className="is-complete">
-              <span>
-                <CheckCircle2 size={18} />
-                Skills and education
-              </span>
-
-              <strong>Complete</strong>
-            </div>
-
-            <div className="is-incomplete">
-              <span>
-                <Clock3 size={18} />
-                Work experience
-              </span>
-
-              <button
-                type="button"
-                onClick={() =>
-                  navigate("/candidate/profile")
+            {profileChecklist.map((item) => (
+              <div
+                key={item.title}
+                className={
+                  item.complete
+                    ? "is-complete"
+                    : "is-incomplete"
                 }
               >
-                Add details
-              </button>
-            </div>
+                <span>
+                  {item.complete ? (
+                    <CheckCircle2 size={18} />
+                  ) : (
+                    <Clock3 size={18} />
+                  )}
+
+                  {item.title}
+                </span>
+
+                {item.complete ? (
+                  <strong>Complete</strong>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate("/candidate/profile")
+                    }
+                  >
+                    Add details
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* Application activity timeline */}
         <section className="clear-activity">
           <header className="clear-section-header">
             <div>
               <span>Recent activity</span>
               <h2>Application timeline</h2>
+
               <p>
-                Your latest application progress and updates.
+                Your latest applications returned by the backend.
               </p>
             </div>
 
@@ -540,42 +854,62 @@ export default function CandidateDashboard() {
           </header>
 
           <div className="clear-activity-list">
-            {recentApplications.map((application) => (
-              <article
-                key={application.id}
-                className="clear-activity-item"
-              >
-                <span
-                  className={`clear-activity-marker clear-status-${application.tone}`}
-                />
+            {recentApplications.length === 0 ? (
+              <p>
+                You have not submitted any applications yet.
+              </p>
+            ) : (
+              recentApplications.map((application) => {
+                const tone = getApplicationTone(
+                  application.status,
+                );
 
-                <div className="clear-activity-copy">
-                  <strong>{application.job}</strong>
-                  <span>{application.company}</span>
-                </div>
+                const formattedStatus =
+                  formatApplicationStatus(
+                    application.status,
+                  );
 
-                <span className="clear-activity-date">
-                  <CalendarDays size={14} />
-                  {application.date}
-                </span>
+                return (
+                  <article
+                    key={application.id}
+                    className="clear-activity-item"
+                  >
+                    <span
+                      className={`clear-activity-marker clear-status-${tone}`}
+                    />
 
-                <span
-                  className={`clear-activity-status clear-status-${application.tone}`}
-                >
-                  {application.status}
-                </span>
+                    <div className="clear-activity-copy">
+                      <strong>{application.jobTitle}</strong>
 
-                <button
-                  type="button"
-                  aria-label={`View ${application.job} application`}
-                  onClick={() =>
-                    navigate("/candidate/applications")
-                  }
-                >
-                  <Eye size={17} />
-                </button>
-              </article>
-            ))}
+                      <span>
+                        Application #{application.id}
+                      </span>
+                    </div>
+
+                    <span className="clear-activity-date">
+                      <CalendarDays size={14} />
+                      {formatDate(application.appliedAt)}
+                    </span>
+
+                    <span
+                      className={`clear-activity-status clear-status-${tone}`}
+                    >
+                      {formattedStatus}
+                    </span>
+
+                    <button
+                      type="button"
+                      aria-label={`View ${application.jobTitle} application`}
+                      onClick={() =>
+                        navigate("/candidate/applications")
+                      }
+                    >
+                      <Eye size={17} />
+                    </button>
+                  </article>
+                );
+              })
+            )}
           </div>
         </section>
       </div>
