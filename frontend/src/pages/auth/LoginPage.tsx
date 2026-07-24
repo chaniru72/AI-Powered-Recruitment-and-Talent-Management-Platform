@@ -157,29 +157,49 @@ export default function LoginPage() {
         email,
         password,
       });
+      const {
+  accessToken,
+  userId,
+  fullName,
+  email: authenticatedEmail,
+  role,
+  expiresAt,
+} = response.data;
 
-      const { accessToken, userId, fullName, role, expiresAt } = response.data;
+localStorage.setItem("token", accessToken);
 
-      if (role === "Candidate") {
-        localStorage.setItem("token", accessToken);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userId,
-            fullName,
-            email: response.data.email,
-            role,
-            expiresAt,
-          }),
-        );
-        navigate("/candidate/dashboard", { replace: true });
-      } else {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setMessage(
-          `Login successful, but the ${role} dashboard is not available yet.`,
-        );
-      }
+localStorage.setItem(
+  "user",
+  JSON.stringify({
+    userId,
+    fullName,
+    email: authenticatedEmail,
+    role,
+    expiresAt,
+  }),
+);
+
+switch (role) {
+  case "Candidate":
+    navigate("/candidate/dashboard", {
+      replace: true,
+    });
+    break;
+
+  case "Recruiter":
+    navigate("/recruiter/dashboard", {
+      replace: true,
+    });
+    break;
+
+  default:
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    setMessage(
+      `Login successful, but the ${role} dashboard is not available yet.`,
+    );
+}
     } catch (error) {
       if (axios.isAxiosError<{ message?: string }>(error)) {
         setMessage(
