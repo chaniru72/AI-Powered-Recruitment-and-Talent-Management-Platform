@@ -1,4 +1,4 @@
- import {
+import {
   Navigate,
   Route,
   Routes,
@@ -22,9 +22,6 @@ import CandidateApplications from "./pages/candidate/CandidateApplications";
 import CandidateMessages from "./pages/candidate/CandidateMessages";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
 
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminUsers from "./pages/admin/AdminUsers";
-
 import RecruiterDashboard from "./pages/recruiter/RecruiterDashboard";
 import RecruiterJobs from "./pages/recruiter/RecruiterJobs";
 import RecruiterApplicants from "./pages/recruiter/RecruiterApplicants";
@@ -32,9 +29,16 @@ import RecruiterInterviews from "./pages/recruiter/RecruiterInterviews";
 import RecruiterMessages from "./pages/recruiter/RecruiterMessages";
 import RecruiterProfile from "./pages/recruiter/RecruiterProfile";
 
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+
 import HiringManagerDashboard from "./pages/hiring-manager/HiringManagerDashboard";
 import HiringManagerCandidates from "./pages/hiring-manager/HiringManagerCandidates";
 import HiringManagerCandidateDetails from "./pages/hiring-manager/HiringManagerCandidateDetails";
+
+import HiringManagerInterviews from "./pages/hiringManager/HiringManagerInterviews";
+import HiringManagerEvaluation from "./pages/hiringManager/HiringManagerEvaluation";
+import HiringManagerDecisions from "./pages/hiringManager/HiringManagerDecisions";
 
 export default function App() {
   return (
@@ -193,6 +197,21 @@ export default function App() {
           <Route
             path="candidates/:applicationId"
             element={<HiringManagerCandidateDetails />}
+          />
+
+          <Route
+            path="interviews"
+            element={<HiringManagerInterviews />}
+          />
+
+          <Route
+            path="interviews/:interviewId/evaluation"
+            element={<HiringManagerEvaluation />}
+          />
+
+          <Route
+            path="interviews/:interviewId/applications/:applicationId/decision"
+            element={<HiringManagerDecisions />}
           />
         </Route>
       </Route>
