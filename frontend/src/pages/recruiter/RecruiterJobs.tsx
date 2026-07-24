@@ -12,9 +12,14 @@ import {
   MapPin,
   RefreshCw,
   Search,
+  Sparkles,
   UsersRound,
 } from "lucide-react";
 
+import {
+  getCandidateMatches,
+  type CandidateMatch,
+} from "../../services/aiMatchingService";
 import {
   getJobs,
   type JobResponse,
@@ -70,6 +75,14 @@ export default function RecruiterJobs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] =
     useState("All");
+  const [matchingJobId, setMatchingJobId] =
+    useState<number | null>(null);
+  const [matchingLoadingJobId, setMatchingLoadingJobId] =
+    useState<number | null>(null);
+  const [candidateMatches, setCandidateMatches] = useState<
+    CandidateMatch[]
+  >([]);
+  const [matchingError, setMatchingError] = useState("");
 
   const recruiterUserId = useMemo(
     getRecruiterUserId,
@@ -96,6 +109,24 @@ export default function RecruiterJobs() {
   useEffect(() => {
     void loadJobs();
   }, [loadJobs]);
+
+  const runAiMatching = async (jobId: number) => {
+    setMatchingJobId(jobId);
+    setMatchingLoadingJobId(jobId);
+    setCandidateMatches([]);
+    setMatchingError("");
+
+    try {
+      const matches = await getCandidateMatches(jobId);
+      setCandidateMatches(matches);
+    } catch {
+      setMatchingError(
+        "Unable to run AI matching. Please try again.",
+      );
+    } finally {
+      setMatchingLoadingJobId(null);
+    }
+  };
 
   const recruiterJobs = useMemo(() => {
     if (recruiterUserId === null) {
@@ -329,6 +360,121 @@ export default function RecruiterJobs() {
                         </span>
                       ))}
                   </div>
+
+                  <div className="recruiter-job-ai-actions">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void runAiMatching(job.id)
+                      }
+                      disabled={
+                        matchingLoadingJobId !== null
+                      }
+                    >
+                      <Sparkles size={16} />
+
+                      {matchingLoadingJobId === job.id
+                        ? "Matching candidates..."
+                        : "Run AI Matching"}
+                    </button>
+                  </div>
+
+                  {matchingJobId === job.id && (
+                    <section
+                      className="recruiter-job-ai-results"
+                      aria-live="polite"
+                    >
+                      {matchingLoadingJobId === job.id ? (
+                        <div className="recruiter-job-ai-message">
+                          <RefreshCw
+                            size={19}
+                            className="is-spinning"
+                          />
+                          <p>
+                            Gemini is matching candidates
+                            for this job.
+                          </p>
+                        </div>
+                      ) : matchingError ? (
+                        <div className="recruiter-job-ai-message is-error">
+                          <AlertCircle size={19} />
+                          <p>{matchingError}</p>
+                        </div>
+                      ) : candidateMatches.length === 0 ? (
+                        <div className="recruiter-job-ai-message">
+                          <UsersRound size={19} />
+                          <p>
+                            No applications available for AI
+                            matching.
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <h4>AI candidate matches</h4>
+
+                          <div className="recruiter-job-match-list">
+                            {candidateMatches.map((match) => (
+                              <article
+                                key={match.applicationId}
+                                className="recruiter-job-match"
+                              >
+                                <header>
+                                  <div>
+                                    <h5>
+                                      {match.candidateName}
+                                    </h5>
+                                    <a
+                                      href={`mailto:${match.candidateEmail}`}
+                                    >
+                                      {match.candidateEmail}
+                                    </a>
+                                  </div>
+
+                                  <strong>
+                                    {match.matchScore}% match
+                                  </strong>
+                                </header>
+
+                                <div className="recruiter-job-match-skills">
+                                  <div>
+                                    <span>
+                                      Matched skills
+                                    </span>
+                                    <p>
+                                      {match.matchedSkills
+                                        .length > 0
+                                        ? match.matchedSkills.join(
+                                            ", ",
+                                          )
+                                        : "None"}
+                                    </p>
+                                  </div>
+
+                                  <div>
+                                    <span>
+                                      Missing skills
+                                    </span>
+                                    <p>
+                                      {match.missingSkills
+                                        .length > 0
+                                        ? match.missingSkills.join(
+                                            ", ",
+                                          )
+                                        : "None"}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                <p className="recruiter-job-match-recommendation">
+                                  {match.recommendation}
+                                </p>
+                              </article>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </section>
+                  )}
                 </div>
               </article>
             ))}

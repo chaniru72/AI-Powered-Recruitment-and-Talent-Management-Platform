@@ -251,6 +251,138 @@
   font-weight: 700;
 }
 
+.recruiter-job-ai-actions {
+  margin-top: 16px;
+}
+
+.recruiter-job-ai-actions button {
+  min-height: 40px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  border-radius: 11px;
+  color: #ffffff;
+  background: var(--jobs-dark);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.recruiter-job-ai-actions button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.recruiter-job-ai-results {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--jobs-border);
+}
+
+.recruiter-job-ai-results > h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.recruiter-job-ai-message {
+  min-height: 54px;
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-radius: 12px;
+  color: var(--jobs-muted);
+  background: #f4f8f5;
+}
+
+.recruiter-job-ai-message.is-error {
+  color: #985344;
+  background: #fff1ed;
+}
+
+.recruiter-job-ai-message p {
+  margin: 0;
+  font-size: 12px;
+}
+
+.recruiter-job-match-list {
+  display: grid;
+  gap: 10px;
+}
+
+.recruiter-job-match {
+  padding: 15px;
+  border: 1px solid var(--jobs-border);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.recruiter-job-match > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recruiter-job-match h5 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.recruiter-job-match a {
+  display: inline-block;
+  margin-top: 4px;
+  color: var(--jobs-muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.recruiter-job-match > header strong {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border-radius: 999px;
+  color: #176b59;
+  background: #dff3eb;
+  font-size: 10px;
+}
+
+.recruiter-job-match-skills {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.recruiter-job-match-skills div {
+  padding: 10px;
+  border-radius: 10px;
+  background: #f7f9f6;
+}
+
+.recruiter-job-match-skills span {
+  color: var(--jobs-coral);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.recruiter-job-match-skills p,
+.recruiter-job-match-recommendation {
+  margin: 5px 0 0;
+  color: var(--jobs-muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.recruiter-job-match-recommendation {
+  margin-top: 11px;
+}
+
 .recruiter-jobs-state {
   min-height: 260px;
   margin-top: 22px;
@@ -309,5 +441,13 @@
 
   .recruiter-job-title-row {
     flex-direction: column;
+  }
+
+  .recruiter-job-match > header {
+    flex-direction: column;
+  }
+
+  .recruiter-job-match-skills {
+    grid-template-columns: 1fr;
   }
 }
