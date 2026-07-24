@@ -21,6 +21,7 @@ import CandidateProfile from "./pages/candidate/CandidateProfile";
 import RecruiterDashboard from "./pages/recruiter/RecruiterDashboard";
 import RecruiterJobs from "./pages/recruiter/RecruiterJobs";
 import RecruiterApplicants from "./pages/recruiter/RecruiterApplicants";
+import RecruiterProfile from "./pages/recruiter/RecruiterProfile";
 
 export default function App() {
   return (
@@ -105,6 +106,11 @@ export default function App() {
           <Route
             path="applicants"
             element={<RecruiterApplicants />}
+          />
+
+          <Route
+            path="profile"
+            element={<RecruiterProfile />}
           />
         </Route>
       </Route>
