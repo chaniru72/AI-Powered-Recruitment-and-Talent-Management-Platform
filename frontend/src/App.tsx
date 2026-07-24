@@ -1,13 +1,15 @@
-import {
+ import {
   Navigate,
   Route,
   Routes,
 } from "react-router-dom";
 
+import AdminRoute from "./components/routes/AdminRoute";
 import CandidateRoute from "./components/routes/CandidateRoute";
 import RecruiterRoute from "./components/routes/RecruiterRoute";
 import HiringManagerRoute from "./components/routes/HiringManagerRoute";
 
+import AdminLayout from "./layouts/AdminLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
 import RecruiterLayout from "./layouts/RecruiterLayout";
 import HiringManagerLayout from "./layouts/HiringManagerLayout";
@@ -19,6 +21,7 @@ import CandidateJobs from "./pages/candidate/CandidateJobs";
 import CandidateApplications from "./pages/candidate/CandidateApplications";
 import CandidateMessages from "./pages/candidate/CandidateMessages";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
+
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 
@@ -135,47 +138,64 @@ export default function App() {
         </Route>
       </Route>
 
+      <Route element={<AdminRoute />}>
+        <Route
+          path="/admin"
+          element={<AdminLayout />}
+        >
+          <Route
+            index
+            element={
+              <Navigate
+                to="/admin/dashboard"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="dashboard"
+            element={<AdminDashboard />}
+          />
+
+          <Route
+            path="users"
+            element={<AdminUsers />}
+          />
+        </Route>
+      </Route>
+
       <Route element={<HiringManagerRoute />}>
-  <Route
-    path="/hiring-manager"
-    element={<HiringManagerLayout />}
-  >
-    <Route
-      index
-      element={
-        <Navigate
-          to="/hiring-manager/dashboard"
-          replace
-        />
-      }
-    />
+        <Route
+          path="/hiring-manager"
+          element={<HiringManagerLayout />}
+        >
+          <Route
+            index
+            element={
+              <Navigate
+                to="/hiring-manager/dashboard"
+                replace
+              />
+            }
+          />
 
-    <Route
-      path="dashboard"
-      element={<HiringManagerDashboard />}
-    />
+          <Route
+            path="dashboard"
+            element={<HiringManagerDashboard />}
+          />
 
-    <Route
-      path="candidates"
-      element={<HiringManagerCandidates />}
-    />
+          <Route
+            path="candidates"
+            element={<HiringManagerCandidates />}
+          />
 
-    <Route
-      path="candidates/:applicationId"
-      element={<HiringManagerCandidateDetails />}
-    />
-  </Route>
-</Route>
-
-      <Route
-        path="/admin/dashboard"
-        element={<AdminDashboard />}
-      />
-
-      <Route
-        path="/admin/users"
-        element={<AdminUsers />}
-      />
+          <Route
+            path="candidates/:applicationId"
+            element={<HiringManagerCandidateDetails />}
+          />
+        </Route>
+      </Route>
 
       <Route
         path="*"

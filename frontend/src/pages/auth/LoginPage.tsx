@@ -157,55 +157,62 @@ export default function LoginPage() {
         email,
         password,
       });
+
       const {
-  accessToken,
-  userId,
-  fullName,
-  email: authenticatedEmail,
-  role,
-  expiresAt,
-} = response.data;
+        accessToken,
+        userId,
+        fullName,
+        email: authenticatedEmail,
+        role,
+        expiresAt,
+      } = response.data;
 
-localStorage.setItem("token", accessToken);
+      localStorage.setItem("token", accessToken);
 
-localStorage.setItem(
-  "user",
-  JSON.stringify({
-    userId,
-    fullName,
-    email: authenticatedEmail,
-    role,
-    expiresAt,
-  }),
-);
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          userId,
+          fullName,
+          email: authenticatedEmail,
+          role,
+          expiresAt,
+        }),
+      );
 
-switch (role) {
-  case "Candidate":
-    navigate("/candidate/dashboard", {
-      replace: true,
-    });
-    break;
+      switch (role) {
+        case "Candidate":
+          navigate("/candidate/dashboard", {
+            replace: true,
+          });
+          break;
 
-  case "Recruiter":
-    navigate("/recruiter/dashboard", {
-      replace: true,
-    });
-    break;
+        case "Recruiter":
+          navigate("/recruiter/dashboard", {
+            replace: true,
+          });
+          break;
 
-    case "HiringManager":
+        case "Administrator":
+          navigate("/admin/dashboard", {
+            replace: true,
+          });
+          break;
+
+          case "HiringManager":
   navigate("/hiring-manager/dashboard", {
     replace: true,
   });
   break;
 
   default:
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
 
-    setMessage(
-      `Login successful, but the ${role} dashboard is not available yet.`,
-    );
-}
+          setMessage(
+            `Login successful, but the ${role} dashboard is not available yet.`,
+          );
+      }
     } catch (error) {
       if (axios.isAxiosError<{ message?: string }>(error)) {
         setMessage(
