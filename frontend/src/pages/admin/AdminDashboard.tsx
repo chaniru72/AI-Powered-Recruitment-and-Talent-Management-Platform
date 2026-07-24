@@ -59,7 +59,7 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <main className="admin-page">
+    <div className="admin-page">
       <section className="admin-hero">
         <div>
           <p className="admin-kicker">Admin Control Center</p>
@@ -228,6 +228,6 @@ export default function AdminDashboard() {
           </section>
         </>
       )}
-    </main>
+    </div>
   );
 }
