@@ -5,13 +5,21 @@ import {
 } from "react-router-dom";
 
 import CandidateRoute from "./components/routes/CandidateRoute";
+import RecruiterRoute from "./components/routes/RecruiterRoute";
+
 import DashboardLayout from "./layouts/DashboardLayout";
+import RecruiterLayout from "./layouts/RecruiterLayout";
+
 import LoginPage from "./pages/auth/LoginPage";
+
 import CandidateDashboard from "./pages/candidate/CandidateDashboard";
 import CandidateJobs from "./pages/candidate/CandidateJobs";
 import CandidateApplications from "./pages/candidate/CandidateApplications";
 import CandidateMessages from "./pages/candidate/CandidateMessages";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
+
+import RecruiterDashboard from "./pages/recruiter/RecruiterDashboard";
+import RecruiterJobs from "./pages/recruiter/RecruiterJobs";
 
 export default function App() {
   return (
@@ -64,6 +72,33 @@ export default function App() {
           <Route
             path="profile"
             element={<CandidateProfile />}
+          />
+        </Route>
+      </Route>
+
+      <Route element={<RecruiterRoute />}>
+        <Route
+          path="/recruiter"
+          element={<RecruiterLayout />}
+        >
+          <Route
+            index
+            element={
+              <Navigate
+                to="/recruiter/dashboard"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="dashboard"
+            element={<RecruiterDashboard />}
+          />
+
+          <Route
+            path="jobs"
+            element={<RecruiterJobs />}
           />
         </Route>
       </Route>
