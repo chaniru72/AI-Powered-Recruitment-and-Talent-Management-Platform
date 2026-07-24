@@ -7,6 +7,7 @@ import {
 import {
   Bell,
   BriefcaseBusiness,
+  CalendarDays,
   ChevronDown,
   LayoutDashboard,
   LogOut,
@@ -42,6 +43,11 @@ const navigationItems = [
     name: "Candidates",
     path: "/hiring-manager/candidates",
     icon: UsersRound,
+  },
+  {
+    name: "Interviews",
+    path: "/hiring-manager/interviews",
+    icon: CalendarDays,
   },
 ];
 
