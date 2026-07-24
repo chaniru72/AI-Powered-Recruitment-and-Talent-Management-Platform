@@ -15,6 +15,8 @@ using TalentSyncAI.Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+const string FrontendCorsPolicy = "FrontendCorsPolicy";
+
 // Configure API controllers and readable enum values.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -22,6 +24,23 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(
             new JsonStringEnumConverter());
     });
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        FrontendCorsPolicy,
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 // -------------------------------------------------
 // Gemini AI configuration
@@ -82,6 +101,10 @@ builder.Services.AddScoped<
     IEvaluationRepository,
     EvaluationRepository>();
 
+builder.Services.AddScoped<
+    IAdminRepository,
+    AdminRepository>();
+
 // -------------------------------------------------
 // Password hashing
 // -------------------------------------------------
@@ -141,6 +164,10 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IEvaluationService,
     EvaluationService>();
+
+builder.Services.AddScoped<
+    IAdminService,
+    AdminService>();
 
 // -------------------------------------------------
 // JWT configuration
@@ -208,26 +235,21 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("Frontend", policy =>
-    {
-        policy
-            .WithOrigins("http://localhost:5173")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
-
 var app = builder.Build();
 
 // -------------------------------------------------
 // Middleware
 // -------------------------------------------------
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpsRedirection();
 
-app.UseCors("Frontend");
+app.UseCors(FrontendCorsPolicy);
 
 app.UseAuthentication();
 
