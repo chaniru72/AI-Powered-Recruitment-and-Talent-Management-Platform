@@ -5,9 +5,12 @@ import {
 } from "react-router-dom";
 
 import AdminRoute from "./components/routes/AdminRoute";
+import CandidateRoute from "./components/routes/CandidateRoute";
+import RecruiterRoute from "./components/routes/RecruiterRoute";
 
 import AdminLayout from "./layouts/AdminLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
+import RecruiterLayout from "./layouts/RecruiterLayout";
 
 import LoginPage from "./pages/auth/LoginPage";
 
@@ -16,6 +19,13 @@ import CandidateJobs from "./pages/candidate/CandidateJobs";
 import CandidateApplications from "./pages/candidate/CandidateApplications";
 import CandidateMessages from "./pages/candidate/CandidateMessages";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
+
+import RecruiterDashboard from "./pages/recruiter/RecruiterDashboard";
+import RecruiterJobs from "./pages/recruiter/RecruiterJobs";
+import RecruiterApplicants from "./pages/recruiter/RecruiterApplicants";
+import RecruiterInterviews from "./pages/recruiter/RecruiterInterviews";
+import RecruiterMessages from "./pages/recruiter/RecruiterMessages";
+import RecruiterProfile from "./pages/recruiter/RecruiterProfile";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -33,44 +43,93 @@ export default function App() {
         element={<LoginPage />}
       />
 
-      <Route
-        path="/candidate"
-        element={<DashboardLayout />}
-      >
+      <Route element={<CandidateRoute />}>
         <Route
-          index
-          element={
-            <Navigate
-              to="/candidate/dashboard"
-              replace
-            />
-          }
-        />
+          path="/candidate"
+          element={<DashboardLayout />}
+        >
+          <Route
+            index
+            element={
+              <Navigate
+                to="/candidate/dashboard"
+                replace
+              />
+            }
+          />
 
-        <Route
-          path="dashboard"
-          element={<CandidateDashboard />}
-        />
+          <Route
+            path="dashboard"
+            element={<CandidateDashboard />}
+          />
 
-        <Route
-          path="jobs"
-          element={<CandidateJobs />}
-        />
+          <Route
+            path="jobs"
+            element={<CandidateJobs />}
+          />
 
-        <Route
-          path="applications"
-          element={<CandidateApplications />}
-        />
+          <Route
+            path="applications"
+            element={<CandidateApplications />}
+          />
 
-        <Route
-          path="messages"
-          element={<CandidateMessages />}
-        />
+          <Route
+            path="messages"
+            element={<CandidateMessages />}
+          />
 
+          <Route
+            path="profile"
+            element={<CandidateProfile />}
+          />
+        </Route>
+      </Route>
+
+      <Route element={<RecruiterRoute />}>
         <Route
-          path="profile"
-          element={<CandidateProfile />}
-        />
+          path="/recruiter"
+          element={<RecruiterLayout />}
+        >
+          <Route
+            index
+            element={
+              <Navigate
+                to="/recruiter/dashboard"
+                replace
+              />
+            }
+          />
+
+          <Route
+            path="dashboard"
+            element={<RecruiterDashboard />}
+          />
+
+          <Route
+            path="jobs"
+            element={<RecruiterJobs />}
+          />
+
+          <Route
+            path="applicants"
+            element={<RecruiterApplicants />}
+          />
+
+          <Route
+            path="interviews"
+            element={<RecruiterInterviews />}
+          />
+
+          <Route
+            path="messages"
+            element={<RecruiterMessages />}
+          />
+
+          <Route
+            path="profile"
+            element={<RecruiterProfile />}
+          />
+        </Route>
       </Route>
 
       <Route element={<AdminRoute />}>
