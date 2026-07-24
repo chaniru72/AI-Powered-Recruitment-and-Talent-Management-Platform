@@ -157,34 +157,34 @@ export default function LoginPage() {
         email,
         password,
       });
+      const {
+        accessToken,
+        userId,
+        fullName,
+        email: authenticatedEmail,
+        role,
+        expiresAt,
+      } = response.data;
 
-      const { accessToken, userId, fullName, role, expiresAt } = response.data;
+      const storedUser = JSON.stringify({
+        userId,
+        fullName,
+        email: authenticatedEmail,
+        role,
+        expiresAt,
+      });
 
       if (role === "Candidate") {
         localStorage.setItem("token", accessToken);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userId,
-            fullName,
-            email: response.data.email,
-            role,
-            expiresAt,
-          }),
-        );
+        localStorage.setItem("user", storedUser);
         navigate("/candidate/dashboard", { replace: true });
+      } else if (role === "Recruiter") {
+        localStorage.setItem("token", accessToken);
+        localStorage.setItem("user", storedUser);
+        navigate("/recruiter/dashboard", { replace: true });
       } else if (role === "Administrator") {
         localStorage.setItem("token", accessToken);
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            userId,
-            fullName,
-            email: response.data.email,
-            role,
-            expiresAt,
-          }),
-        );
+        localStorage.setItem("user", storedUser);
         navigate("/admin/dashboard", { replace: true });
       } else {
         localStorage.removeItem("token");
