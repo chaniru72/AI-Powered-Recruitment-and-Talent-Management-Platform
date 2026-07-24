@@ -21,6 +21,7 @@ import CandidateProfile from "./pages/candidate/CandidateProfile";
 import RecruiterDashboard from "./pages/recruiter/RecruiterDashboard";
 import RecruiterJobs from "./pages/recruiter/RecruiterJobs";
 import RecruiterApplicants from "./pages/recruiter/RecruiterApplicants";
+import RecruiterMessages from "./pages/recruiter/RecruiterMessages";
 import RecruiterProfile from "./pages/recruiter/RecruiterProfile";
 
 export default function App() {
@@ -106,6 +107,11 @@ export default function App() {
           <Route
             path="applicants"
             element={<RecruiterApplicants />}
+          />
+
+          <Route
+            path="messages"
+            element={<RecruiterMessages />}
           />
 
           <Route
