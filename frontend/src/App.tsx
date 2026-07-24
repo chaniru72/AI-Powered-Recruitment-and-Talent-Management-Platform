@@ -4,6 +4,7 @@ import {
   Routes,
 } from "react-router-dom";
 
+import AdminRoute from "./components/routes/AdminRoute";
 import CandidateRoute from "./components/routes/CandidateRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
 import LoginPage from "./pages/auth/LoginPage";
@@ -70,15 +71,17 @@ export default function App() {
         </Route>
       </Route>
 
-      <Route
-        path="/admin/dashboard"
-        element={<AdminDashboard />}
-      />
+      <Route element={<AdminRoute />}>
+        <Route
+          path="/admin/dashboard"
+          element={<AdminDashboard />}
+        />
 
-      <Route
-        path="/admin/users"
-        element={<AdminUsers />}
-      />
+        <Route
+          path="/admin/users"
+          element={<AdminUsers />}
+        />
+      </Route>
 
       <Route
         path="*"

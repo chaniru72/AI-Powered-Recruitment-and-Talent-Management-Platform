@@ -173,6 +173,19 @@ export default function LoginPage() {
           }),
         );
         navigate("/candidate/dashboard", { replace: true });
+      } else if (role === "Administrator") {
+        localStorage.setItem("token", accessToken);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            userId,
+            fullName,
+            email: response.data.email,
+            role,
+            expiresAt,
+          }),
+        );
+        navigate("/admin/dashboard", { replace: true });
       } else {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
