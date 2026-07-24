@@ -1,148 +1,242 @@
 import {
+  useCallback,
+  useEffect,
   useMemo,
   useState,
   type FormEvent,
 } from "react";
 import {
+  AlertCircle,
   CheckCheck,
+  LoaderCircle,
   MessageCircle,
   MoreVertical,
   Paperclip,
+  RefreshCw,
   Search,
   Send,
   UserRound,
 } from "lucide-react";
 
-interface Conversation {
-  id: number;
-  name: string;
-  role: string;
-  lastMessage: string;
-  time: string;
-  unread: number;
-  online: boolean;
+import {
+  getCandidateConversation,
+  getCandidateConversations,
+  sendCandidateMessage,
+} from "../../services/candidateMessageService";
+
+import type {
+  CandidateConversation,
+  CandidateConversationDetails,
+} from "../../types/candidateMessage";
+
+type StoredUser = {
+  id?: number | string;
+  userId?: number | string;
+};
+
+function getStoredUserId(): number | null {
+  try {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return null;
+    }
+
+    const user = JSON.parse(storedUser) as StoredUser;
+    const value = user.userId ?? user.id;
+    const userId = Number(value);
+
+    return Number.isFinite(userId) ? userId : null;
+  } catch {
+    return null;
+  }
 }
 
-interface ChatMessage {
-  id: number;
-  conversationId: number;
-  content: string;
-  time: string;
-  sender: "candidate" | "recruiter";
+function formatMessageTime(value?: string | null): string {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const today = new Date();
+
+  if (date.toDateString() === today.toDateString()) {
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(date);
+  }
+
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+  }).format(date);
 }
 
-const initialConversations: Conversation[] = [
-  {
-    id: 1,
-    name: "Sarah Fernando",
-    role: "Recruiter · TechNova",
-    lastMessage: "Your interview has been scheduled.",
-    time: "10:30 AM",
-    unread: 2,
-    online: true,
-  },
-  {
-    id: 2,
-    name: "Daniel Perera",
-    role: "Hiring Manager · Vertex Labs",
-    lastMessage: "Thank you for submitting your application.",
-    time: "Yesterday",
-    unread: 0,
-    online: false,
-  },
-  {
-    id: 3,
-    name: "Maya Silva",
-    role: "Recruiter · CloudCore",
-    lastMessage: "Could you send your updated résumé?",
-    time: "18 Jul",
-    unread: 0,
-    online: true,
-  },
-];
+function getLoadErrorMessage(error: unknown): string {
+  if (
+    error instanceof Error &&
+    error.message.includes("not configured")
+  ) {
+    return "The messaging backend endpoint has not been connected yet.";
+  }
 
-const initialMessages: ChatMessage[] = [
-  {
-    id: 1,
-    conversationId: 1,
-    content:
-      "Hello! We reviewed your application for the Frontend Developer position.",
-    time: "10:15 AM",
-    sender: "recruiter",
-  },
-  {
-    id: 2,
-    conversationId: 1,
-    content:
-      "Thank you for the update. I am very interested in the opportunity.",
-    time: "10:18 AM",
-    sender: "candidate",
-  },
-  {
-    id: 3,
-    conversationId: 1,
-    content:
-      "Great! Your online interview has been scheduled for tomorrow at 2:00 PM.",
-    time: "10:30 AM",
-    sender: "recruiter",
-  },
-  {
-    id: 4,
-    conversationId: 2,
-    content:
-      "Thank you for submitting your application. Our team will review it soon.",
-    time: "Yesterday",
-    sender: "recruiter",
-  },
-  {
-    id: 5,
-    conversationId: 3,
-    content:
-      "Could you send your updated résumé before the interview?",
-    time: "18 Jul",
-    sender: "recruiter",
-  },
-];
+  return "We could not load your messages. Please try again.";
+}
 
 export default function CandidateMessages() {
-  const [conversations, setConversations] =
-    useState<Conversation[]>(initialConversations);
+  const currentUserId = useMemo(() => getStoredUserId(), []);
 
-  const [messages, setMessages] =
-    useState<ChatMessage[]>(initialMessages);
+  const [conversations, setConversations] = useState<
+    CandidateConversation[]
+  >([]);
+
+  const [conversationDetails, setConversationDetails] =
+    useState<CandidateConversationDetails | null>(null);
 
   const [selectedConversationId, setSelectedConversationId] =
-    useState(1);
+    useState<number | null>(null);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [newMessage, setNewMessage] = useState("");
 
-  const selectedConversation = conversations.find(
-    (conversation) =>
-      conversation.id === selectedConversationId,
+  const [isLoadingConversations, setIsLoadingConversations] =
+    useState(true);
+
+  const [isLoadingMessages, setIsLoadingMessages] =
+    useState(false);
+
+  const [isSending, setIsSending] = useState(false);
+
+  const [pageError, setPageError] = useState("");
+  const [conversationError, setConversationError] =
+    useState("");
+
+  const loadConversations = useCallback(async () => {
+    try {
+      setIsLoadingConversations(true);
+      setPageError("");
+
+      const data = await getCandidateConversations();
+
+      setConversations(data);
+
+      setSelectedConversationId((currentId) => {
+        if (
+          currentId !== null &&
+          data.some(
+            (conversation) => conversation.id === currentId,
+          )
+        ) {
+          return currentId;
+        }
+
+        return data[0]?.id ?? null;
+      });
+
+      if (data.length === 0) {
+        setConversationDetails(null);
+      }
+    } catch (error) {
+      setConversations([]);
+      setConversationDetails(null);
+      setSelectedConversationId(null);
+      setPageError(getLoadErrorMessage(error));
+    } finally {
+      setIsLoadingConversations(false);
+    }
+  }, []);
+
+  const loadConversation = useCallback(
+    async (conversationId: number) => {
+      try {
+        setIsLoadingMessages(true);
+        setConversationError("");
+
+        const details =
+          await getCandidateConversation(conversationId);
+
+        setConversationDetails(details);
+
+        setConversations((currentConversations) =>
+          currentConversations.map((conversation) =>
+            conversation.id === conversationId
+              ? {
+                  ...conversation,
+                  ...details.conversation,
+                  unreadCount: 0,
+                }
+              : conversation,
+          ),
+        );
+      } catch (error) {
+        setConversationDetails(null);
+        setConversationError(getLoadErrorMessage(error));
+      } finally {
+        setIsLoadingMessages(false);
+      }
+    },
+    [],
   );
+
+  useEffect(() => {
+    void loadConversations();
+  }, [loadConversations]);
+
+  useEffect(() => {
+    if (selectedConversationId === null) {
+      setConversationDetails(null);
+      return;
+    }
+
+    void loadConversation(selectedConversationId);
+  }, [loadConversation, selectedConversationId]);
 
   const filteredConversations = useMemo(() => {
     const normalizedSearch = searchTerm
       .trim()
       .toLowerCase();
 
+    if (!normalizedSearch) {
+      return conversations;
+    }
+
     return conversations.filter((conversation) => {
-      return (
-        conversation.name
-          .toLowerCase()
-          .includes(normalizedSearch) ||
-        conversation.role
-          .toLowerCase()
-          .includes(normalizedSearch)
-      );
+      const searchableText = [
+        conversation.participantName,
+        conversation.participantRole,
+        conversation.participantEmail,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(normalizedSearch);
     });
   }, [conversations, searchTerm]);
 
-  const selectedMessages = messages.filter(
-    (message) =>
-      message.conversationId === selectedConversationId,
-  );
+  const selectedConversation = useMemo(() => {
+    if (
+      conversationDetails?.conversation.id ===
+      selectedConversationId
+    ) {
+      return conversationDetails.conversation;
+    }
+
+    return conversations.find(
+      (conversation) =>
+        conversation.id === selectedConversationId,
+    );
+  }, [
+    conversationDetails,
+    conversations,
+    selectedConversationId,
+  ]);
 
   function selectConversation(conversationId: number) {
     setSelectedConversationId(conversationId);
@@ -152,58 +246,79 @@ export default function CandidateMessages() {
         conversation.id === conversationId
           ? {
               ...conversation,
-              unread: 0,
+              unreadCount: 0,
             }
           : conversation,
       ),
     );
   }
 
-  function handleSendMessage(
+  async function handleSendMessage(
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
 
-    const trimmedMessage = newMessage.trim();
+    const content = newMessage.trim();
 
-    if (!trimmedMessage || !selectedConversation) {
+    if (
+      !content ||
+      selectedConversationId === null ||
+      isSending
+    ) {
       return;
     }
 
-    const currentTime = new Intl.DateTimeFormat(
-      "en-US",
-      {
-        hour: "numeric",
-        minute: "2-digit",
-      },
-    ).format(new Date());
+    try {
+      setIsSending(true);
+      setConversationError("");
 
-    const message: ChatMessage = {
-      id: Date.now(),
-      conversationId: selectedConversation.id,
-      content: trimmedMessage,
-      time: currentTime,
-      sender: "candidate",
-    };
+      const savedMessage = await sendCandidateMessage(
+        selectedConversationId,
+        content,
+      );
 
-    setMessages((currentMessages) => [
-      ...currentMessages,
-      message,
-    ]);
+      setConversationDetails((currentDetails) => {
+        if (
+          !currentDetails ||
+          currentDetails.conversation.id !==
+            selectedConversationId
+        ) {
+          return currentDetails;
+        }
 
-    setConversations((currentConversations) =>
-      currentConversations.map((conversation) =>
-        conversation.id === selectedConversation.id
-          ? {
-              ...conversation,
-              lastMessage: trimmedMessage,
-              time: currentTime,
-            }
-          : conversation,
-      ),
-    );
+        return {
+          conversation: {
+            ...currentDetails.conversation,
+            lastMessage: savedMessage.content,
+            lastMessageAt: savedMessage.sentAt,
+            unreadCount: 0,
+          },
+          messages: [
+            ...currentDetails.messages,
+            savedMessage,
+          ],
+        };
+      });
 
-    setNewMessage("");
+      setConversations((currentConversations) =>
+        currentConversations.map((conversation) =>
+          conversation.id === selectedConversationId
+            ? {
+                ...conversation,
+                lastMessage: savedMessage.content,
+                lastMessageAt: savedMessage.sentAt,
+                unreadCount: 0,
+              }
+            : conversation,
+        ),
+      );
+
+      setNewMessage("");
+    } catch (error) {
+      setConversationError(getLoadErrorMessage(error));
+    } finally {
+      setIsSending(false);
+    }
   }
 
   return (
@@ -267,8 +382,30 @@ export default function CandidateMessages() {
             </label>
           </div>
 
-          <div className="max-h-[360px] overflow-y-auto md:max-h-[575px]">
-            {filteredConversations.length === 0 ? (
+          <div className="max-h-[575px] overflow-y-auto">
+            {isLoadingConversations ? (
+              <div className="flex flex-col items-center p-8">
+                <LoaderCircle
+                  size={28}
+                  className="animate-spin text-blue-600"
+                />
+
+                <p className="mt-3 text-sm text-slate-500">
+                  Loading conversations...
+                </p>
+              </div>
+            ) : pageError ? (
+              <div className="p-6 text-center">
+                <AlertCircle
+                  size={30}
+                  className="mx-auto text-amber-500"
+                />
+
+                <p className="mt-3 text-sm text-slate-600">
+                  Messaging is unavailable.
+                </p>
+              </div>
+            ) : filteredConversations.length === 0 ? (
               <div className="p-8 text-center">
                 <MessageCircle
                   size={30}
@@ -276,7 +413,9 @@ export default function CandidateMessages() {
                 />
 
                 <p className="mt-3 text-sm text-slate-500">
-                  No conversations found.
+                  {conversations.length === 0
+                    ? "No conversations yet."
+                    : "No conversations found."}
                 </p>
               </div>
             ) : (
@@ -309,7 +448,7 @@ export default function CandidateMessages() {
                         <UserRound size={22} />
                       </div>
 
-                      {conversation.online && (
+                      {conversation.isOnline && (
                         <span
                           className="absolute bottom-0 right-0
                             h-3 w-3 rounded-full border-2
@@ -319,19 +458,24 @@ export default function CandidateMessages() {
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
+                      <div
+                        className="flex items-start
+                          justify-between gap-2"
+                      >
                         <p
                           className="truncate text-sm font-bold
                             text-slate-900"
                         >
-                          {conversation.name}
+                          {conversation.participantName}
                         </p>
 
                         <span
                           className="shrink-0 text-[11px]
                             text-slate-400"
                         >
-                          {conversation.time}
+                          {formatMessageTime(
+                            conversation.lastMessageAt,
+                          )}
                         </span>
                       </div>
 
@@ -339,7 +483,8 @@ export default function CandidateMessages() {
                         className="mt-0.5 truncate text-xs
                           text-slate-500"
                       >
-                        {conversation.role}
+                        {conversation.participantRole ||
+                          "Recruitment team"}
                       </p>
 
                       <div className="mt-1 flex items-center gap-2">
@@ -347,17 +492,18 @@ export default function CandidateMessages() {
                           className="min-w-0 flex-1 truncate
                             text-xs text-slate-500"
                         >
-                          {conversation.lastMessage}
+                          {conversation.lastMessage ||
+                            "No messages yet"}
                         </p>
 
-                        {conversation.unread > 0 && (
+                        {(conversation.unreadCount ?? 0) > 0 && (
                           <span
                             className="flex h-5 min-w-5
                               items-center justify-center
                               rounded-full bg-blue-600 px-1
                               text-[10px] font-bold text-white"
                           >
-                            {conversation.unread}
+                            {conversation.unreadCount}
                           </span>
                         )}
                       </div>
@@ -370,7 +516,70 @@ export default function CandidateMessages() {
         </aside>
 
         <div className="flex min-h-[520px] flex-col">
-          {selectedConversation ? (
+          {isLoadingConversations ? (
+            <div
+              className="flex flex-1 flex-col items-center
+                justify-center p-8 text-center"
+            >
+              <LoaderCircle
+                size={36}
+                className="animate-spin text-blue-600"
+              />
+
+              <p className="mt-3 text-sm text-slate-500">
+                Loading messages...
+              </p>
+            </div>
+          ) : pageError ? (
+            <div
+              className="flex flex-1 flex-col items-center
+                justify-center p-8 text-center"
+            >
+              <AlertCircle
+                size={42}
+                className="text-amber-500"
+              />
+
+              <h2 className="mt-4 text-lg font-bold text-slate-900">
+                Messaging is not available yet
+              </h2>
+
+              <p className="mt-2 max-w-md text-sm text-slate-500">
+                {pageError}
+              </p>
+
+              <button
+                type="button"
+                onClick={() => void loadConversations()}
+                className="mt-5 inline-flex items-center gap-2
+                  rounded-xl bg-blue-600 px-4 py-2.5
+                  text-sm font-semibold text-white
+                  hover:bg-blue-700"
+              >
+                <RefreshCw size={16} />
+                Retry
+              </button>
+            </div>
+          ) : !selectedConversation ? (
+            <div
+              className="flex flex-1 flex-col items-center
+                justify-center p-8 text-center"
+            >
+              <MessageCircle
+                size={44}
+                className="text-slate-300"
+              />
+
+              <h2 className="mt-4 text-lg font-bold text-slate-900">
+                No conversations yet
+              </h2>
+
+              <p className="mt-2 max-w-md text-sm text-slate-500">
+                Conversations will appear here when a recruiter or
+                hiring manager starts a discussion.
+              </p>
+            </div>
+          ) : (
             <>
               <header
                 className="flex items-center justify-between
@@ -390,21 +599,23 @@ export default function CandidateMessages() {
                       className="truncate text-sm font-bold
                         text-slate-900 sm:text-base"
                     >
-                      {selectedConversation.name}
+                      {selectedConversation.participantName}
                     </h2>
 
                     <p className="truncate text-xs text-slate-500">
-                      {selectedConversation.role}
+                      {selectedConversation.participantRole ||
+                        selectedConversation.participantEmail ||
+                        "Recruitment team"}
                     </p>
                   </div>
                 </div>
 
                 <button
                   type="button"
+                  disabled
                   aria-label="Conversation options"
                   className="flex h-10 w-10 items-center
-                    justify-center rounded-xl text-slate-500
-                    transition hover:bg-slate-100"
+                    justify-center rounded-xl text-slate-400"
                 >
                   <MoreVertical size={20} />
                 </button>
@@ -414,129 +625,193 @@ export default function CandidateMessages() {
                 className="flex flex-1 flex-col gap-4
                   overflow-y-auto bg-slate-50 p-4 sm:p-6"
               >
-                <div className="text-center">
-                  <span
-                    className="rounded-full bg-white px-3 py-1
-                      text-xs text-slate-400 shadow-sm"
+                {isLoadingMessages ? (
+                  <div
+                    className="flex flex-1 flex-col items-center
+                      justify-center"
                   >
-                    Conversation started
-                  </span>
-                </div>
+                    <LoaderCircle
+                      size={30}
+                      className="animate-spin text-blue-600"
+                    />
 
-                {selectedMessages.map((message) => {
-                  const isCandidate =
-                    message.sender === "candidate";
+                    <p className="mt-3 text-sm text-slate-500">
+                      Loading conversation...
+                    </p>
+                  </div>
+                ) : conversationError ? (
+                  <div
+                    className="flex flex-1 flex-col items-center
+                      justify-center text-center"
+                  >
+                    <AlertCircle
+                      size={34}
+                      className="text-amber-500"
+                    />
 
-                  return (
-                    <div
-                      key={message.id}
-                      className={`flex ${
-                        isCandidate
-                          ? "justify-end"
-                          : "justify-start"
-                      }`}
+                    <p className="mt-3 text-sm text-slate-500">
+                      {conversationError}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        selectedConversationId !== null &&
+                        void loadConversation(
+                          selectedConversationId,
+                        )
+                      }
+                      className="mt-4 inline-flex items-center
+                        gap-2 rounded-xl border
+                        border-slate-200 bg-white px-4 py-2
+                        text-sm font-semibold text-slate-700"
                     >
-                      <div
-                        className={`max-w-[85%] rounded-2xl
-                          px-4 py-3 sm:max-w-[70%]
-                          ${
-                            isCandidate
-                              ? "rounded-br-md bg-blue-600 text-white"
-                              : "rounded-bl-md border border-slate-200 bg-white text-slate-700"
-                          }`}
+                      <RefreshCw size={15} />
+                      Retry
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-center">
+                      <span
+                        className="rounded-full bg-white px-3 py-1
+                          text-xs text-slate-400 shadow-sm"
                       >
-                        <p className="text-sm leading-6">
-                          {message.content}
-                        </p>
-
-                        <div
-                          className={`mt-1.5 flex items-center
-                            justify-end gap-1 text-[10px]
-                            ${
-                              isCandidate
-                                ? "text-blue-100"
-                                : "text-slate-400"
-                            }`}
-                        >
-                          <span>{message.time}</span>
-
-                          {isCandidate && (
-                            <CheckCheck size={13} />
-                          )}
-                        </div>
-                      </div>
+                        Conversation
+                      </span>
                     </div>
-                  );
-                })}
+
+                    {conversationDetails?.messages.length === 0 ? (
+                      <div
+                        className="flex flex-1 flex-col items-center
+                          justify-center text-center"
+                      >
+                        <MessageCircle
+                          size={36}
+                          className="text-slate-300"
+                        />
+
+                        <p className="mt-3 text-sm text-slate-500">
+                          No messages in this conversation yet.
+                        </p>
+                      </div>
+                    ) : (
+                      conversationDetails?.messages.map((message) => {
+                        const isCandidate =
+                          currentUserId !== null &&
+                          message.senderUserId === currentUserId;
+
+                        return (
+                          <div
+                            key={message.id}
+                            className={`flex ${
+                              isCandidate
+                                ? "justify-end"
+                                : "justify-start"
+                            }`}
+                          >
+                            <div
+                              className={`max-w-[85%] rounded-2xl
+                                px-4 py-3 sm:max-w-[70%]
+                                ${
+                                  isCandidate
+                                    ? "rounded-br-md bg-blue-600 text-white"
+                                    : "rounded-bl-md border border-slate-200 bg-white text-slate-700"
+                                }`}
+                            >
+                              <p className="text-sm leading-6">
+                                {message.content}
+                              </p>
+
+                              <div
+                                className={`mt-2 flex items-center
+                                  justify-end gap-1 text-[10px]
+                                  ${
+                                    isCandidate
+                                      ? "text-blue-100"
+                                      : "text-slate-400"
+                                  }`}
+                              >
+                                <span>
+                                  {formatMessageTime(
+                                    message.sentAt,
+                                  )}
+                                </span>
+
+                                {isCandidate && message.isRead && (
+                                  <CheckCheck size={13} />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </>
+                )}
               </div>
 
               <form
                 onSubmit={handleSendMessage}
-                className="border-t border-slate-200 bg-white p-4"
+                className="flex items-end gap-3 border-t
+                  border-slate-200 bg-white p-4"
               >
-                <div className="flex items-end gap-2">
-                  <button
-                    type="button"
-                    aria-label="Attach file"
-                    className="flex h-11 w-11 shrink-0 items-center
-                      justify-center rounded-xl text-slate-500
-                      transition hover:bg-slate-100"
-                  >
-                    <Paperclip size={20} />
-                  </button>
+                <button
+                  type="button"
+                  disabled
+                  aria-label="Attach file"
+                  className="flex h-11 w-11 shrink-0 items-center
+                    justify-center rounded-xl text-slate-400"
+                >
+                  <Paperclip size={20} />
+                </button>
 
-                  <textarea
-                    rows={1}
-                    value={newMessage}
-                    onChange={(event) =>
-                      setNewMessage(event.target.value)
-                    }
-                    placeholder="Type your message..."
-                    className="max-h-32 min-h-11 flex-1 resize-none
-                      rounded-xl border border-slate-200
-                      bg-slate-50 px-4 py-3 text-sm
-                      text-slate-900 outline-none
-                      transition focus:border-blue-500
-                      focus:bg-white focus:ring-4
-                      focus:ring-blue-100"
-                  />
-
-                  <button
-                    type="submit"
-                    disabled={!newMessage.trim()}
-                    className="flex h-11 w-11 shrink-0 items-center
-                      justify-center rounded-xl bg-blue-600
-                      text-white transition hover:bg-blue-700
-                      disabled:cursor-not-allowed
-                      disabled:opacity-50"
-                  >
-                    <Send size={19} />
-                  </button>
-                </div>
-              </form>
-            </>
-          ) : (
-            <div
-              className="flex flex-1 items-center justify-center
-                p-8 text-center"
-            >
-              <div>
-                <MessageCircle
-                  size={42}
-                  className="mx-auto text-slate-300"
+                <textarea
+                  value={newMessage}
+                  onChange={(event) =>
+                    setNewMessage(event.target.value)
+                  }
+                  placeholder="Type a message"
+                  rows={1}
+                  disabled={
+                    isSending ||
+                    isLoadingMessages ||
+                    Boolean(conversationError)
+                  }
+                  className="min-h-11 flex-1 resize-none
+                    rounded-xl border border-slate-200
+                    bg-slate-50 px-4 py-3 text-sm
+                    outline-none focus:border-blue-500
+                    disabled:cursor-not-allowed
+                    disabled:opacity-60"
                 />
 
-                <h2
-                  className="mt-4 text-lg font-bold text-slate-900"
+                <button
+                  type="submit"
+                  disabled={
+                    !newMessage.trim() ||
+                    isSending ||
+                    isLoadingMessages ||
+                    Boolean(conversationError)
+                  }
+                  aria-label="Send message"
+                  className="flex h-11 w-11 shrink-0 items-center
+                    justify-center rounded-xl bg-blue-600
+                    text-white transition hover:bg-blue-700
+                    disabled:cursor-not-allowed
+                    disabled:bg-slate-300"
                 >
-                  Select a conversation
-                </h2>
-
-                <p className="mt-2 text-sm text-slate-500">
-                  Choose a conversation to view its messages.
-                </p>
-              </div>
-            </div>
+                  {isSending ? (
+                    <LoaderCircle
+                      size={19}
+                      className="animate-spin"
+                    />
+                  ) : (
+                    <Send size={19} />
+                  )}
+                </button>
+              </form>
+            </>
           )}
         </div>
       </section>
